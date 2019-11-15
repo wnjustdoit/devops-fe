@@ -1,12 +1,10 @@
 <template>
   <div class="publishList" v-loading="loading">
-    <el-button type="primary" @click.native="updateGitRepo2Db()">更新git仓库信息</el-button>
     <div style="margin: auto; margin-top: 15px; margin-bottom: 15px; width: 300px;">
       <el-input placeholder="请输入关键词" v-model="keyword" clearable class="search_txt">
         <el-button slot="append" icon="el-icon-search" @click="search_projects_publishment()"></el-button>
       </el-input>
     </div>
-
     <el-table :data="publishList" border style="width: 100%">
       <el-table-column prop="id" label="发布系统id"></el-table-column>
       <el-table-column prop="name" label="名称"></el-table-column>
@@ -14,7 +12,7 @@
       <el-table-column prop="git_repo_id" label="git仓库id"></el-table-column>
       <el-table-column prop="git_branches" label="git发布分支"></el-table-column>
       <el-table-column prop="profile" label="maven打包环境"></el-table-column>
-      <el-table-column prop="to_username" label="目标服务器用户名"></el-table-column>
+      <el-table-column prop="source_file_dir" label="发布文件位置"></el-table-column>
       <el-table-column prop="to_ip" label="目标服务器ip"></el-table-column>
       <el-table-column prop="to_project_home" label="目标服务器项目主目录"></el-table-column>
       <el-table-column prop="to_process_name" label="目标服务器项目进程关键词"></el-table-column>
@@ -25,9 +23,9 @@
       <el-table-column prop="git_delete_temp_branch" label="是否删除临时分支"></el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button type="danger" @click.native="toPublish(scope.row.id)">发布</el-button>|
-          <el-button type="danger" @click.native="toUpdate(scope.row.id)">修改</el-button>
-          <el-button type="danger" @click.native="deleteItem(scope.row.id)">删除</el-button>
+          <el-button type="danger" @click="toPublish(scope.row.id)">发布</el-button>|
+          <el-button type="danger" @click="toUpdate(scope.row.id)">修改</el-button>
+          <el-button type="danger" @click="deleteItem(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -119,27 +117,6 @@ export default {
         })
         .catch(_ => {
           _this.$message("已取消");
-        });
-    },
-    updateGitRepo2Db() {
-      var _this = this;
-      _this.loading = true;
-      http
-        .post("/git/repos/database")
-        .then(response => {
-          console.log(response);
-          _this.$message({
-            showClose: true,
-            message: "同步git信息成功",
-            type: "success"
-          });
-        })
-        .catch(error => {
-          console.error(error);
-          _this.$message.error("更新失败");
-        })
-        .then(() => {
-          _this.loading = false;
         });
     },
     toPublish(id) {

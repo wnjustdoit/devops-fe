@@ -4,18 +4,14 @@ import router from "./router";
 import store from "./store";
 import ElementUI from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
-import VueSocketIO from "vue-socket.io"
+import VueSocketIOExt from "vue-socket.io-extended";
+import io from "socket.io-client";
 
 Vue.use(ElementUI);
-Vue.use(new VueSocketIO({
-  debug: true,
-  connection: 'http://localhost:5000',
-  vuex: {
-    store,
-    actionPrefix: 'SOCKET_',
-    mutationPrefix: 'SOCKET_'
-  },
-}))
+
+const socket = io('http://localhost:5000');
+Vue.use(VueSocketIOExt, socket, { store });
+
 Vue.config.productionTip = false;
 
 new Vue({

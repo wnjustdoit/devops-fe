@@ -1,11 +1,22 @@
 <template>
-  <div class="publish_detail">
-    <el-scrollbar style="height: 100%;" ref="el_scrollbar">
-      <div class="publish" ref="log_output" style="overflow-y: auto; width: 1300px; height: 550px;"></div>
-    </el-scrollbar>
-    <el-backtop target=".publish" :bottom="100">
-      <div
-        style="{
+  <div>
+    <!-- <div>
+      <span>{{ $socket.connected ? 'Socket connected' : 'Socket disconnected' }}</span>
+    </div>
+    <span class="notification" v-if="$socket.disconnected" style="color:yellow">You are disconnected</span>
+    <el-divider></el-divider>-->
+    <div class="publish_detail">
+      <el-scrollbar style="height: 100%;" ref="el_scrollbar">
+        <div
+          class="publish"
+          ref="log_output"
+          v-html="log_output"
+          style="overflow-y: auto; width: 1300px; height: 550px;"
+        ></div>
+      </el-scrollbar>
+      <el-backtop target=".publish" :bottom="100">
+        <div
+          style="{
         height: 100%;
         width: 100%;
         background-color: #f2f5f6;
@@ -14,30 +25,35 @@
         line-height: 25px;
         color: #1989fa;
       }"
-      >UP</div>
-    </el-backtop>
+        >UP</div>
+      </el-backtop>
+    </div>
   </div>
 </template>
 <script>
 import http from "../util/http.js";
+import { stringify } from "querystring";
 export default {
   data() {
-    return {};
+    return {
+      log_output: null
+    };
   },
-  //   sockets: {
-  //     publish_response: function(data) {
-  //         console.log('==-==-==' + JSON.stringify(data));
-  //     }
-  //   },
+  sockets: {
+    connect() {
+      console.log("socket connected");
+    }
+    // ,
+    // publish_response: function(data) {
+    //   console.log("server-side response: " + JSON.stringify(data));
+    // }
+  },
   methods: {
-    publish_init() {
-      var _this = this;
-      console.log(this.$route.query.id);
-      http
+    async publish_init() {
+      await http
         .post("/publish", { id: this.$route.query.id })
         .then(response => {
-          console.log(response);
-          _this.$message({
+          this.$message({
             showClose: true,
             message: "正在发布...",
             type: "success"
@@ -47,9 +63,29 @@ export default {
           console.error(error);
         })
         .then(() => {});
-      this.$socket.emit("publish_event", { id: this.$route.query.id });
-      this.sockets.subscribe("publish_response", data => {
-        this.$refs.log_output.innerHTML += data.data + "<br/>";
+
+      this.$socket.client.emit("publish_event", { id: this.$route.query.id });
+      this.$socket.$subscribe("publish_response", data => {
+        if (data.message) {
+          this.$message({
+            message: data.message,
+            type: "warning"
+          });
+        }
+        if (data.data) {
+          this.log_output += data.data + "<br/>";
+        }
+        if (data.status && data.status == "OK") {
+          const h = this.$createElement;
+          this.$notify({
+            title: "发布状态",
+            message: h(
+              "i",
+              { style: "color: green" },
+              "发布结束，详情请查看发布日志"
+            )
+          });
+        }
       });
 
       // console.log(this.$refs.el_scrollbar)
