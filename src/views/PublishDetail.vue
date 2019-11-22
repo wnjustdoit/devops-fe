@@ -1,21 +1,37 @@
 <template>
   <div>
-    <!-- <div>
+    <div>
+      <br/>
       <span>{{ $socket.connected ? 'Socket connected' : 'Socket disconnected' }}</span>
+      <span>
+        <span
+          class="notification"
+          v-if="$socket.disconnected"
+          style="color:yellow"
+        ><el-divider direction="vertical"></el-divider>You are disconnected</span>
+      </span>
+      <el-divider direction="vertical"></el-divider>
+      <el-switch
+        v-model="scroll_switch"
+        active-text="自动滚动"
+        inactive-text="取消"
+        @change="scroll_publish"
+      ></el-switch>
     </div>
-    <span class="notification" v-if="$socket.disconnected" style="color:yellow">You are disconnected</span>
-    <el-divider></el-divider>-->
+    <el-divider style="margin:10px 0;" content-position="left">发布日志如下：</el-divider>
     <div class="publish_detail">
       <el-scrollbar style="height: 100%;" ref="el_scrollbar">
         <div
           class="publish"
           ref="log_output"
           v-html="log_output"
-          style="overflow-y: auto; width: 1300px; height: 550px;"
+          @scroll="scroll_publish(false)"
+          :style="publish_style"
         ></div>
       </el-scrollbar>
       <el-backtop target=".publish" :bottom="100">
         <div
+          id="publish_div"
           style="{
         height: 100%;
         width: 100%;
@@ -36,20 +52,37 @@ import { stringify } from "querystring";
 export default {
   data() {
     return {
-      log_output: null
+      log_output: "",
+      scroll_switch: true,
+      scroll_top: 0,
+      publish_style: {
+        overflowY: 'auto',
+        width: '1300px',
+        height: '550px'
+      }
     };
   },
   sockets: {
     connect() {
       console.log("socket connected");
     }
-    // ,
-    // publish_response: function(data) {
-    //   console.log("server-side response: " + JSON.stringify(data));
-    // }
   },
   methods: {
+    getCookie(cookieName) {
+      var strCookie = document.cookie;
+      var arrCookie = strCookie.split("; ");
+      for (var i = 0; i < arrCookie.length; i++) {
+        var arr = arrCookie[i].split("=");
+        if (cookieName == arr[0]) {
+          return arr[1];
+        }
+      }
+      return "";
+    },
     async publish_init() {
+      // 当首次cookie为空时，写完cookie后重连websocket（其他改进策略：换原生websocket，更好的掌控整个websocket生命周期）
+      // 终极改进：TODO 用户登录后，直接用会话的cookie标识
+      var reconnect = this.getCookie("publish_client_id") == "";
       await http
         .post("/publish", { id: this.$route.query.id })
         .then(response => {
@@ -58,6 +91,10 @@ export default {
             message: "正在发布...",
             type: "success"
           });
+          if (reconnect) {
+            this.$socket.client.disconnect();
+            this.$socket.client.connect();
+          }
         })
         .catch(error => {
           console.error(error);
@@ -65,35 +102,61 @@ export default {
         .then(() => {});
 
       this.$socket.client.emit("publish_event", { id: this.$route.query.id });
-      this.$socket.$subscribe("publish_response", data => {
-        if (data.message) {
-          this.$message({
-            message: data.message,
-            type: "warning"
-          });
+      this.$socket.$subscribe(
+        "publish_response_" + this.getCookie("publish_client_id"),
+        data => {
+          if (data.message) {
+            this.$message({
+              message: data.message,
+              type: "warning"
+            });
+          }
+          if (data.data) {
+            this.log_output += data.data + "<br/>";
+            this.scroll_publish(null);
+          }
+          if (data.status && data.status == "OK") {
+            const h = this.$createElement;
+            this.$notify({
+              title: "发布状态",
+              message: h(
+                "i",
+                { style: "color: green" },
+                "发布结束，详情请查看发布日志"
+              )
+            });
+          }
         }
-        if (data.data) {
-          this.log_output += data.data + "<br/>";
-        }
-        if (data.status && data.status == "OK") {
-          const h = this.$createElement;
-          this.$notify({
-            title: "发布状态",
-            message: h(
-              "i",
-              { style: "color: green" },
-              "发布结束，详情请查看发布日志"
-            )
-          });
-        }
-      });
-
-      // console.log(this.$refs.el_scrollbar)
-      // var div = this.$refs.el_scrollbar.wrap;
-      // this.$nextTick(() => {
-      //   div.scrollTop = div.scrollHeight;
-      // });
+      );
+    },
+    scroll_publish(manual_switch) {
+      if (!this.scroll_switch) {
+        return;
+      }
+      var div = this.$refs.log_output;
+      // console.log("=====" + this.scroll_switch + ", " + manual_switch + ", " + div.scrollTop + ", " + div.scrollHeight);
+      // 如果人为打开开关，则自动滚动
+      if ((manual_switch != null && manual_switch) || div.scrollTop >= this.scroll_top) {
+        this.$nextTick(() => {
+          div.scrollTop = div.scrollHeight;
+          this.scroll_top = div.scrollTop; // 标记当前滚动的位置，为下次识别是否人为滚动做准备
+        });
+      } else {
+        // 如果人为向上滚动，则停止自动滚动
+        this.scroll_switch = false;
+      }
+    },
+    resize_div() {
+      // console.log('================' + document.documentElement.clientHeight + ', ' + document.documentElement.clientWidth);
+      var height_used = this.$refs.log_output.getBoundingClientRect().top;
+      this.publish_style.height = `${document.documentElement.clientHeight - height_used - 20}px`;
+      this.publish_style.width = `${document.documentElement.clientWidth * 0.95}px`;
     }
+  },
+  mounted() {
+    this.resize_div();
+    window.onresize = this.resize_div;
+    document.getElementsByClassName('el-scrollbar__view')[0].style += ';overflow-x: hidden;';
   },
   created() {
     this.publish_init();
@@ -101,10 +164,11 @@ export default {
 };
 </script>
 <style scoped>
+.publish_detail {
+  overflow-x: hidden;
+}
 .publish {
   text-align: left;
-}
-.el-scrollbar__wrap {
-  overflow-x: hidden;
+  border: 1px solid lightgray;
 }
 </style>
