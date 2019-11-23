@@ -1,7 +1,6 @@
 <template>
   <div>
     <div>
-      <br />
       <span>{{ $socket.connected ? 'Socket connected' : 'Socket disconnected' }}</span>
       <span>
         <span class="notification" v-if="$socket.disconnected" style="color: red;">
@@ -78,6 +77,13 @@ export default {
       return "";
     },
     async publish_init() {
+      if (!this.$route.query.id) {
+        this.$message({
+          message: "发布ID不可为空",
+          type: "warning"
+        });
+        return;
+      }
       // 当首次cookie为空时，写完cookie后重连websocket（其他改进策略：换原生websocket，更好的掌控整个websocket生命周期）
       // 终极改进：TODO 用户登录后，直接用会话的cookie标识
       var reconnect = this.getCookie("publish_client_id") == "";
@@ -101,7 +107,10 @@ export default {
 
       this.$socket.client.emit("publish_event", { id: this.$route.query.id });
       this.$socket.$subscribe(
-        "publish_response_" + this.getCookie("publish_client_id") + "_" + this.$route.query.id,
+        "publish_response_" +
+          this.getCookie("publish_client_id") +
+          "_" +
+          this.$route.query.id,
         data => {
           if (data.message) {
             this.$message({
@@ -156,16 +165,20 @@ export default {
       var height_used = this.$refs.log_output.getBoundingClientRect().top;
       this.publish_style.height = `${document.documentElement.clientHeight -
         height_used -
-        20}px`;
+        1}px`;
       this.publish_style.width = `${document.documentElement.clientWidth *
         0.95}px`;
     }
   },
   mounted() {
+    // 自适应窗口
     this.resize_div();
     window.onresize = this.resize_div;
+    // js修改样式
     document.getElementsByClassName("el-scrollbar__view")[0].style +=
       ";overflow-x: hidden;";
+    document.getElementsByClassName("el-divider--horizontal")[0].style.margin =
+      "8px 0";
   },
   created() {
     this.publish_init();

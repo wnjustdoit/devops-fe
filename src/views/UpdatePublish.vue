@@ -227,7 +227,7 @@ export default {
   methods: {
     get_publishment() {
       http.get("/publishment/" + this.$route.query.id).then(response => {
-        console.log(response.data);
+        // console.log(response.data);
         this.publishment = response.data;
       });
     },

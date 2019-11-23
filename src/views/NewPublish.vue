@@ -285,7 +285,7 @@ export default {
         });
     },
     change_ip_group() {
-      console.log("========" + this.publishment.profile);
+      // console.log("========" + this.publishment.profile);
       // console.log(this._to_ip_options);
       if (!this.publishment.profile) {
         return;
@@ -304,16 +304,16 @@ export default {
     onSubmit() {
       this.$refs["publishment"].validate(valid => {
         if (valid) {
-          console.log("submit!");
+          // console.log("submit!");
         } else {
-          console.log("error submit!!");
+          // console.log("error submit!!");
           return false;
         }
       });
       http
         .request({ url: "/publishment", method: "PUT", data: this.publishment })
         .then(response => {
-          console.log(response);
+          // console.log(response);
           this.$message({
             showClose: true,
             message: "保存成功",
