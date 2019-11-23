@@ -1,14 +1,12 @@
 <template>
   <div>
     <div>
-      <br/>
+      <br />
       <span>{{ $socket.connected ? 'Socket connected' : 'Socket disconnected' }}</span>
       <span>
-        <span
-          class="notification"
-          v-if="$socket.disconnected"
-          style="color:yellow"
-        ><el-divider direction="vertical"></el-divider>You are disconnected</span>
+        <span class="notification" v-if="$socket.disconnected" style="color: red;">
+          <el-divider direction="vertical"></el-divider>You are disconnected
+        </span>
       </span>
       <el-divider direction="vertical"></el-divider>
       <el-switch
@@ -56,9 +54,9 @@ export default {
       scroll_switch: true,
       scroll_top: 0,
       publish_style: {
-        overflowY: 'auto',
-        width: '1300px',
-        height: '550px'
+        overflowY: "auto",
+        width: "1300px",
+        height: "550px"
       }
     };
   },
@@ -103,7 +101,7 @@ export default {
 
       this.$socket.client.emit("publish_event", { id: this.$route.query.id });
       this.$socket.$subscribe(
-        "publish_response_" + this.getCookie("publish_client_id"),
+        "publish_response_" + this.getCookie("publish_client_id") + "_" + this.$route.query.id,
         data => {
           if (data.message) {
             this.$message({
@@ -122,7 +120,7 @@ export default {
               message: h(
                 "i",
                 { style: "color: green" },
-                "发布结束，详情请查看发布日志"
+                data.project + "发布结束，详情请查看发布日志"
               )
             });
           }
@@ -134,9 +132,16 @@ export default {
         return;
       }
       var div = this.$refs.log_output;
+      // socket调用时，加载时机的问题处理
+      if (!div) {
+        return;
+      }
       // console.log("=====" + this.scroll_switch + ", " + manual_switch + ", " + div.scrollTop + ", " + div.scrollHeight);
       // 如果人为打开开关，则自动滚动
-      if ((manual_switch != null && manual_switch) || div.scrollTop >= this.scroll_top) {
+      if (
+        (manual_switch != null && manual_switch) ||
+        div.scrollTop >= this.scroll_top
+      ) {
         this.$nextTick(() => {
           div.scrollTop = div.scrollHeight;
           this.scroll_top = div.scrollTop; // 标记当前滚动的位置，为下次识别是否人为滚动做准备
@@ -149,14 +154,18 @@ export default {
     resize_div() {
       // console.log('================' + document.documentElement.clientHeight + ', ' + document.documentElement.clientWidth);
       var height_used = this.$refs.log_output.getBoundingClientRect().top;
-      this.publish_style.height = `${document.documentElement.clientHeight - height_used - 20}px`;
-      this.publish_style.width = `${document.documentElement.clientWidth * 0.95}px`;
+      this.publish_style.height = `${document.documentElement.clientHeight -
+        height_used -
+        20}px`;
+      this.publish_style.width = `${document.documentElement.clientWidth *
+        0.95}px`;
     }
   },
   mounted() {
     this.resize_div();
     window.onresize = this.resize_div;
-    document.getElementsByClassName('el-scrollbar__view')[0].style += ';overflow-x: hidden;';
+    document.getElementsByClassName("el-scrollbar__view")[0].style +=
+      ";overflow-x: hidden;";
   },
   created() {
     this.publish_init();

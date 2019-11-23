@@ -137,7 +137,7 @@ export default {
         git_repo_id: null,
         git_branches: null,
         profile: null,
-        source_file_dir: null,
+        source_file_dir: 'target',
         to_ip: null,
         to_project_home: null,
         to_process_name: null,

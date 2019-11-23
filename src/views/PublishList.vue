@@ -58,7 +58,7 @@ export default {
   methods: {
     search_projects_publishment() {
       var _this = this;
-      console.log(this.keyword + "-" + this.currentPage);
+      // console.log(this.keyword + "-" + this.currentPage);
       http
         .get("/publishment/list", {
           params: { keyword: this.keyword, current_page: this.currentPage }
@@ -94,7 +94,7 @@ export default {
       });
     },
     deleteItem(id) {
-      console.log(id);
+      // console.log(id);
       var _this = this;
       _this
         .$confirm("确认删除？")
@@ -102,7 +102,7 @@ export default {
           http
             .delete("/publishment", { data: { id: id } })
             .then(response => {
-              console.log(response.data);
+              // console.log(response.data);
               _this.$message({
                 showClose: true,
                 message: "删除成功",
