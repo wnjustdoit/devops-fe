@@ -27,7 +27,7 @@
           <router-link to="/newPublishStatic">新建发布</router-link>
         </el-menu-item>
         <el-menu-item index="3-2">
-          <router-link to="/publishStaticList">发布列表</router-link>
+          <router-link to="/publishListStatic">发布列表</router-link>
         </el-menu-item>
       </el-submenu>
       <el-submenu index="4">
@@ -36,24 +36,24 @@
           <router-link to="/newPublishFe">新建发布</router-link>
         </el-menu-item>
         <el-menu-item index="4-2">
-          <router-link to="/publishFeList">发布列表</router-link>
+          <router-link to="/publishListFe">发布列表</router-link>
         </el-menu-item>
       </el-submenu>
       <el-submenu index="5">
-        <template slot="title">nodejs发布</template>
+        <template slot="title">nodejs发布（暂不支持）</template>
         <el-menu-item index="5-1">
           <router-link to="/newPublishNode">新建发布</router-link>
         </el-menu-item>
         <el-menu-item index="5-2">
-          <router-link to="/publishNodeList">发布列表</router-link>
+          <router-link to="/publishListNode">发布列表</router-link>
         </el-menu-item>
       </el-submenu>
       <el-menu-item index="6">
-        <router-link to="/">最近发布</router-link>
+        <router-link to="/published">最近发布（TODO）</router-link>
       </el-menu-item>
       <el-menu-item index="7">
         <a href="#" target="_blank">
-          <router-link to="/about">用户管理</router-link>
+          <router-link to="/admin/user">用户管理（TODO）</router-link>
         </a>
       </el-menu-item>
     </el-menu>

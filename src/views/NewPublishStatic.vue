@@ -17,7 +17,6 @@
         <el-select
           v-model="publishment.git_repo_id"
           filterable
-          default-first-option
           placeholder="请选择"
         >
           <el-option
@@ -31,8 +30,9 @@
       <el-form-item label="git分支" prop="git_branches">
         <el-select
           v-model="publishment.git_branches"
-          placeholder="请选择"
-          @click.native="get_git_repo_branches()"
+          multiple
+          placeholder="请选择（单选）"
+          @focus="get_git_repo_branches()"
         >
           <el-option
             v-for="item in git_branch_options"
@@ -42,14 +42,17 @@
           ></el-option>
         </el-select>
       </el-form-item>
+      <el-form-item label="发布文件位置（相对）" prop="source_file_dir">
+        <el-input v-model="publishment.source_file_dir" placeholder="eg: childfolder1/grandchildfolder1"></el-input>
+      </el-form-item>
       <el-form-item label="目标服务器" prop="to_ip">
         <el-select
           v-model="publishment.to_ip"
+          multiple
           filterable
           allow-create
-          default-first-option
-          placeholder="请选择或输入"
-          @click.native="change_ip_group()"
+          placeholder="请选择或输入（单选）"
+          @click="change_ip_group()"
           @focus="change_ip_group()"
         >
           <el-option-group v-for="group in to_ip_options" :key="group.label" :label="group.label">
@@ -85,6 +88,7 @@ export default {
         description: null,
         git_repo_id: null,
         git_branches: null,
+        source_file_dir: null,
         to_ip: null,
         to_project_home: null
       },
@@ -235,7 +239,7 @@ export default {
         }
       });
       http
-        .request({ url: "/publishment/static", method: "PUT", data: this.publishment })
+        .request({ url: "/publishmentStatic", method: "PUT", data: this.publishment })
         .then(response => {
           console.log(response);
           _this.$message({
@@ -243,7 +247,7 @@ export default {
             message: "保存成功",
             type: "success"
           });
-          _this.$router.push({ path: "/publishList" });
+          _this.$router.push({ path: "/publishListStatic" });
         })
         .catch(function(error) {
           console.log(error);

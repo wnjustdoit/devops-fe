@@ -1,23 +1,19 @@
 <template>
   <div class="publish">
-    <el-form
-      ref="publishment"
-      :model="publishment"
-      :rules="rules"
-      label-position="left"
-      label-width="200px"
-    >
-      <el-form-item label="发布名称" prop="name">
-        <el-input v-model="publishment.name" placeholder="eg: develop_youxuan_supplier_web_fe"></el-input>
+    <el-form ref="form" :model="publishment" label-width="200px" v-loading="loading">
+      <el-form-item label="发布名称">
+        <el-input v-model="publishment.name" placeholder="eg: develop_youxuan_supplier_web"></el-input>
       </el-form-item>
-      <el-form-item label="描述" prop="description">
-        <el-input v-model="publishment.description" placeholder="eg: 妈妈优选供应商web前端（线下环境）"></el-input>
+      <el-form-item label="描述">
+        <el-input v-model="publishment.description" placeholder="eg: 妈妈优选供应商web端（线下环境）"></el-input>
       </el-form-item>
-      <el-form-item label="git仓库地址" prop="git_repo_id">
+      <el-form-item label="git仓库地址">
         <el-select
           v-model="publishment.git_repo_id"
           filterable
           placeholder="请选择"
+          @click="list_git_repos()"
+          @change="resetBranch()"
         >
           <el-option
             v-for="item in git_repo_options"
@@ -25,14 +21,14 @@
             :label="item.label"
             :value="item.value"
           ></el-option>
-        </el-select>
+        </el-select>*
       </el-form-item>
-      <el-form-item label="git分支" prop="git_branches">
+      <el-form-item label="git分支">
         <el-select
           v-model="publishment.git_branches"
           multiple
           placeholder="请选择（单选）"
-          @click.native="get_git_repo_branches()"
+          @focus="get_git_repo_branches()"
         >
           <el-option
             v-for="item in git_branch_options"
@@ -42,27 +38,16 @@
           ></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="发布环境" prop="profile">
-        <el-select v-model="publishment.profile" placeholder="请选择">
-          <el-option
-            v-for="item in profile_options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          ></el-option>
-        </el-select>
-      </el-form-item>
       <el-form-item label="发布文件位置（相对）" prop="source_file_dir">
-        <el-input v-model="publishment.source_file_dir" placeholder="eg: childfolder1/grandchildfolder1"></el-input>
+        <el-input v-model="publishment.source_file_dir" placeholder="eg: assets"></el-input>
       </el-form-item>
-      <el-form-item label="目标服务器" prop="to_ip">
+      <el-form-item label="目标服务器">
         <el-select
           v-model="publishment.to_ip"
           multiple
           filterable
           allow-create
           placeholder="请选择或输入（单选）"
-          @click.native="change_ip_group()"
           @focus="change_ip_group()"
         >
           <el-option-group v-for="group in to_ip_options" :key="group.label" :label="group.label">
@@ -75,21 +60,21 @@
           </el-option-group>
         </el-select>
       </el-form-item>
-      <el-form-item label="目标服务器项目目录" prop="to_project_home">
+      <el-form-item label="目标服务器项目目录">
         <el-input
           v-model="publishment.to_project_home"
           placeholder="eg: /data/project/mama_[project_name]"
         ></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit">立即创建</el-button>|
-        <el-button @click="resetForm('ruleForm')">重置</el-button>
+        <el-button type="primary" @click="onSubmit">修改</el-button>
       </el-form-item>
     </el-form>
   </div>
 </template>
 <script>
 import http from "../util/http.js";
+import { async } from "q";
 export default {
   data() {
     return {
@@ -99,28 +84,28 @@ export default {
         git_repo_id: null,
         git_branches: null,
         profile: null,
+        source_file_dir: null,
         to_ip: null,
         to_project_home: null
       },
       git_repo_options: [],
-      git_branch_options: [
-        {
-          value: "master",
-          label: "master"
-        }
-      ],
+      git_branch_options: [],
       profile_options: [
         {
+          value: "dev",
+          label: "开发环境（dev）"
+        },
+        {
           value: "test",
-          label: "开发环境（test）"
+          label: "测试环境（test）"
         },
         {
           value: "pre",
           label: "预发环境（pre）"
         },
         {
-          value: "build",
-          label: "生产环境（build）"
+          value: "online",
+          label: "生产环境（online）"
         }
       ],
       to_ip_options: [
@@ -172,47 +157,40 @@ export default {
           ]
         }
       ],
-      rules: {
-        name: [
-          { required: true, message: "请输入发布名称", trigger: "blur" },
-          { min: 3, max: 20, message: "长度在3到20个字符", trigger: "blur" }
-        ],
-        description: [
-          { required: true, message: "请输入发布名称", trigger: "blur" },
-          { min: 5, max: 40, message: "长度在5到40个字符", trigger: "blur" }
-        ],
-        git_repo_id: [
-          { required: true, message: "请选择git仓库地址", trigger: "change" }
-        ],
-        git_branches: [
-          { required: true, message: "请选择git分支名称", trigger: "change" }
-        ],
-        profile: [
-          { required: true, message: "请选择发布环境", trigger: "change" }
-        ],
-        // TODO 校验完善
-        to_ip: null,
-        to_project_home: null,
-        to_process_name: null
-      }
+      loading: false
     };
   },
   methods: {
-    list_git_repos() {
-      http.get("/git/repos").then(response => {
-        this.git_repo_options.length = 0;
-        response.data.forEach(repo => {
-          this.git_repo_options.push({
-            value: repo.id,
-            label: repo.ssh_url_to_repo + " (" + repo.description + ")"
-          });
-        });
+    get_publishment() {
+      http.get("/publishmentStatic/" + this.$route.query.id).then(response => {
+        this.publishment = response.data;
       });
+    },
+    list_git_repos() {
+      this.loading = true;
+      http
+        .get("/git/repos")
+        .then(response => {
+          this.git_repo_options.length = 0;
+          response.data.forEach(repo => {
+            this.git_repo_options.push({
+              value: repo.id,
+              label: repo.ssh_url_to_repo + " (" + repo.description + ")"
+            });
+          });
+        })
+        .catch(error => {
+          console.log("error: " + error);
+        })
+        .then(() => {
+          this.loading = false;
+        });
     },
     get_git_repo_branches() {
       if (!this.publishment.git_repo_id) {
         return;
       }
+      this.loading = true;
       http
         .get("/git/repo/" + this.publishment.git_repo_id + "/branches")
         .then(response => {
@@ -220,9 +198,14 @@ export default {
           response.data.forEach(branch => {
             this.git_branch_options.push({ value: branch, label: branch });
           });
+        })
+        .then(() => {
+          this.loading = false;
         });
     },
     change_ip_group() {
+      console.log("========" + this.publishment.profile);
+      // console.log(this._to_ip_options);
       if (!this.publishment.profile) {
         return;
       }
@@ -237,32 +220,39 @@ export default {
       //   this.to_ip_options.push(this._to_ip_options[2]);
       // }
     },
+    sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    },
+    resetBranch() {
+      this.publishment.git_branches = null;
+    },
     onSubmit() {
-      this.$refs["publishment"].validate(valid => {
-        if (!valid) {
-          return false;
-        }
-      });
       http
-        .request({ url: "/publishmentFe", method: "PUT", data: this.publishment })
+        .request({
+          url: "/publishmentStatic",
+          method: "POST",
+          data: this.publishment
+        })
         .then(response => {
           this.$message({
             showClose: true,
-            message: "保存成功",
+            message: "修改成功",
             type: "success"
           });
-          this.$router.push({ path: "/publishListFe" });
+          // this.sleep(1200).then(() => {
+          //   this.$router.go(0);
+          // });
+          this.get_publishment();
         })
         .catch(error => {
-          this.$message.error("保存失败");
+          console.log(error);
         });
-    },
-    resetForm() {
-      this.$refs["publishment"].resetFields();
     }
   },
   created() {
     this.list_git_repos();
+    this.get_git_repo_branches();
+    this.get_publishment();
   }
 };
 </script>

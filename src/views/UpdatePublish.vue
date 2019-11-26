@@ -11,7 +11,6 @@
         <el-select
           v-model="publishment.git_repo_id"
           filterable
-          default-first-option
           placeholder="请选择"
           @click="list_git_repos()"
           @change="resetBranch()"
@@ -58,7 +57,6 @@
           multiple
           filterable
           allow-create
-          default-first-option
           placeholder="请选择或输入（支持多项）"
           @focus="change_ip_group()"
         >

@@ -9,7 +9,8 @@ import io from "socket.io-client";
 
 Vue.use(ElementUI);
 
-const socket = io('http://localhost:5000');
+const socket_url = process.env.NODE_ENV == 'development' ? 'http://192.168.1.132:5000' : 'http://192.168.1.248:5000';
+const socket = io(socket_url);
 Vue.use(VueSocketIOExt, socket, { store });
 
 Vue.config.productionTip = false;

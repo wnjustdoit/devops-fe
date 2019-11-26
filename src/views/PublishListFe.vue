@@ -11,16 +11,9 @@
       <el-table-column prop="description" label="描述"></el-table-column>
       <el-table-column prop="git_repo_id" label="git仓库id"></el-table-column>
       <el-table-column prop="git_branches" label="git发布分支"></el-table-column>
-      <el-table-column prop="profile" label="maven打包环境"></el-table-column>
       <el-table-column prop="source_file_dir" label="发布文件位置"></el-table-column>
       <el-table-column prop="to_ip" label="目标服务器ip"></el-table-column>
       <el-table-column prop="to_project_home" label="目标服务器项目主目录"></el-table-column>
-      <el-table-column prop="to_process_name" label="目标服务器项目进程关键词"></el-table-column>
-      <el-table-column prop="to_java_opts" label="目标服务器上java应用运行变量"></el-table-column>
-      <el-table-column prop="git_merged_branch" label="git合并到的分支名"></el-table-column>
-      <el-table-column prop="git_tag_version" label="git打标签名"></el-table-column>
-      <el-table-column prop="git_tag_comment" label="git打标签备注"></el-table-column>
-      <el-table-column prop="git_delete_temp_branch" label="是否删除临时分支"></el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
           <el-button type="danger" @click="toPublish(scope.row.id)">发布</el-button>|
@@ -57,48 +50,31 @@ export default {
   },
   methods: {
     search_projects_publishment() {
-      var _this = this;
-      // console.log(this.keyword + "-" + this.currentPage);
       http
-        .get("/publishment/list", {
+        .get("/publishmentFe/list", {
           params: { keyword: this.keyword, current_page: this.currentPage }
         })
         .then(response => {
           this.publishList = response.data.data;
           this.total = response.data.total;
         })
-        .catch(function(error) {
-          console.log(error);
-          _this.$message.error("查询失败");
+        .catch(error => {
+          this.$message.error("查询失败");
         });
-      // http
-      //   .post("/publishment/login", this.userLoginInfo)
-      //   .then(function(response) {
-      //     console.log(response);
-      //     if (response.id) {
-      //       this.router.push({
-      //         path: "/"
-      //       });
-      //     }
-      //   })
-      //   .catch(function(error) {
-      //     console.log(error);
-      //   });
     },
     toUpdate(id) {
       this.$router.push({
-        path: "/updatePublish",
+        path: "/updatePublishFe",
         query: {
           id: id
         }
       });
     },
     deleteItem(id) {
-      this
-        .$confirm("确认删除？")
+      this.$confirm("确认删除？")
         .then(_ => {
           http
-            .delete("/publishment/" + id)
+            .delete("/publishmentFe/" + id)
             .then(response => {
               this.$message({
                 showClose: true,
@@ -117,7 +93,7 @@ export default {
     },
     toPublish(id) {
       this.$router.push({
-        path: "/publishDetail",
+        path: "/publishDetailFe/",
         query: {
           id: id
         }

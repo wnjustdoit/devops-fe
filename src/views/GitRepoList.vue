@@ -21,7 +21,6 @@
         </template>
       </el-table-column>
     </el-table>
-    </div>
   </div>
 </template>
 
@@ -64,14 +63,11 @@ export default {
       //   });
     },
     deleteItem(id) {
-      console.log(id);
-      this
-        .$confirm("确认删除？")
+      this.$confirm("确认删除？")
         .then(_ => {
           http
-            .delete("/git/repos", { data: { id: id } })
+            .delete("/git/repos/" + id)
             .then(response => {
-              console.log(response.data);
               this.$message({
                 showClose: true,
                 message: "删除成功",

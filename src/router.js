@@ -20,7 +20,7 @@ export default new Router({
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () =>
-        import(/* webpackChunkName: "about" */ "./views/About.vue")
+        import("./views/About.vue")
     },
     {
       path: "/login",
@@ -29,34 +29,7 @@ export default new Router({
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () =>
-        import(/* webpackChunkName: "login" */ "./views/Login.vue")
-    },
-    {
-      path: "/newPublish",
-      name: "newPublish",
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () =>
-        import(/* webpackChunkName: "publishlist" */ "./views/NewPublish.vue")
-    },
-    {
-      path: "/updatePublish",
-      name: "updatePublish",
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () =>
-        import(/* webpackChunkName: "publishlist" */ "./views/UpdatePublish.vue")
-    },
-    {
-      path: "/publishList",
-      name: "publishList",
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () =>
-        import(/* webpackChunkName: "publishList" */ "./views/PublishList.vue")
+        import("./views/Login.vue")
     },
     {
       path: "/gitRepoList",
@@ -65,7 +38,34 @@ export default new Router({
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () =>
-        import(/* webpackChunkName: "publishList" */ "./views/GitRepoList.vue")
+        import("./views/GitRepoList.vue")
+    },
+    {
+      path: "/newPublish",
+      name: "newPublish",
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () =>
+        import("./views/NewPublish.vue")
+    },
+    {
+      path: "/updatePublish",
+      name: "updatePublish",
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () =>
+        import("./views/UpdatePublish.vue")
+    },
+    {
+      path: "/publishList",
+      name: "publishList",
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () =>
+        import("./views/PublishList.vue")
     },
     {
       path: "/publishDetail",
@@ -74,7 +74,81 @@ export default new Router({
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () =>
-        import(/* webpackChunkName: "publishList" */ "./views/PublishDetail.vue")
+        import("./views/PublishDetail.vue")
+    },
+    {
+      path: "/newPublishStatic",
+      name: "newPublishStatic",
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () =>
+        import("./views/NewPublishStatic.vue")
+     },
+    {
+      path: "/updatePublishStatic",
+      name: "updatePublishStatic",
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () =>
+        import("./views/UpdatePublishStatic.vue")
+    }
+    ,
+    {
+      path: "/publishListStatic",
+      name: "publishListStatic",
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () =>
+        import("./views/PublishListStatic.vue")
+    },
+    {
+      path: "/publishDetailStatic",
+      name: "publishDetailStatic",
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () =>
+        import("./views/PublishDetailStatic.vue")
+    },
+    {
+      path: "/newPublishFe",
+      name: "newPublishFe",
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () =>
+        import("./views/NewPublishFe.vue")
+     },
+    {
+      path: "/updatePublishFe",
+      name: "updatePublishFe",
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () =>
+        import("./views/UpdatePublishFe.vue")
+    }
+    ,
+    {
+      path: "/publishListFe",
+      name: "publishListFe",
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () =>
+        import("./views/PublishListFe.vue")
+    },
+    {
+      path: "/publishDetailFe",
+      name: "publishDetailFe",
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () =>
+        import("./views/PublishDetailFe.vue")
     }
   ]
 });
