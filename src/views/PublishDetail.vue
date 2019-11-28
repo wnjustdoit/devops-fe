@@ -15,7 +15,17 @@
         @change="scroll_publish"
       ></el-switch>
     </div>
-    <el-divider style="margin:10px 0;" content-position="left">发布日志如下：</el-divider>
+    <el-divider style="margin:10px 0;" content-position="left">发布进度</el-divider>
+    <el-steps :active="active" finish-status="success" align-center>
+      <el-step title="准备环境"></el-step>
+      <el-step title="从git克隆工程"></el-step>
+      <el-step title="maven打包"></el-step>
+      <el-step title="检查上传环境"></el-step>
+      <el-step title="上传远程服务器"></el-step>
+      <el-step title="执行远程发布脚本"></el-step>
+      <el-step title="发布收尾工作"></el-step>
+    </el-steps>
+    <el-divider style="margin:10px 0;" content-position="left">发布日志</el-divider>
     <div class="publish_detail">
       <el-scrollbar style="height: 100%;" ref="el_scrollbar">
         <div
@@ -56,6 +66,17 @@ export default {
         overflowY: "auto",
         width: "1300px",
         height: "550px"
+      },
+      active: -1,
+      steps: {
+        $step0: 0,
+        $step1: 1,
+        $step2: 2,
+        $step3: 3,
+        $step4: 4,
+        $step5: 5,
+        $step6: 6,
+        $step7: 7
       }
     };
   },
@@ -65,6 +86,16 @@ export default {
     }
   },
   methods: {
+    getStepIndex(lineContent) {
+      if (lineContent != null && lineContent.indexOf("$step") != -1) {
+        for (var key in this.steps) {
+          if (lineContent.indexOf(key) != -1) {
+            return this.steps[key];
+          }
+        }
+      }
+      return null;
+    },
     getCookie(cookieName) {
       var strCookie = document.cookie;
       var arrCookie = strCookie.split("; ");
@@ -120,6 +151,10 @@ export default {
           }
           if (data.data) {
             this.log_output += data.data + "<br/>";
+            var stepIndex = this.getStepIndex(data.data);
+            if (stepIndex != null) {
+              this.active = stepIndex;
+            }
             this.scroll_publish(null);
           }
           if (data.status && data.status == "OK") {

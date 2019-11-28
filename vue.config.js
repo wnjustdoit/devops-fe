@@ -1,11 +1,12 @@
 // const ParallelUglifyPlugin = require('webpack-parallel-uglify-plugin')
+
 module.exports = {
     devServer: {
         port: 9999,
         disableHostCheck: true,
         proxy: {
             '/api': {
-                target: 'http://192.168.1.132:5000',
+                target: process.env.VUE_APP_DOMAIN_BASE_URL,
                 pathRewrite: {
                     '^/api': ''
                 },

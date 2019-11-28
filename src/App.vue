@@ -1,13 +1,17 @@
 <template>
   <div id="app">
+    <!-- <el-avatar>admin</el-avatar> -->
     <el-menu
       :default-active="activeIndex"
       class="el-menu-demo"
       mode="horizontal"
       @select="handleSelect"
     >
-      <el-menu-item index="1">
+      <el-menu-item index="0">
         <router-link to="/">首页</router-link>
+      </el-menu-item>
+      <el-menu-item index="1">
+        <router-link to="/gitRepoList">GitLab项目列表</router-link>
       </el-menu-item>
       <el-submenu index="2">
         <template slot="title">后端发布</template>
@@ -16,9 +20,6 @@
         </el-menu-item>
         <el-menu-item index="2-2">
           <router-link to="/publishList">发布列表</router-link>
-        </el-menu-item>
-        <el-menu-item index="2-2">
-          <router-link to="/gitRepoList">GitLab信息列表</router-link>
         </el-menu-item>
       </el-submenu>
       <el-submenu index="3">
@@ -40,7 +41,7 @@
         </el-menu-item>
       </el-submenu>
       <el-submenu index="5">
-        <template slot="title">nodejs发布（暂不支持）</template>
+        <template slot="title">nodejs发布（TODO）</template>
         <el-menu-item index="5-1">
           <router-link to="/newPublishNode">新建发布</router-link>
         </el-menu-item>
@@ -64,7 +65,7 @@
 export default {
   data() {
     return {
-      activeIndex: "1"
+      activeIndex: "0"
     };
   },
   methods: {
