@@ -118,8 +118,8 @@ export default {
               type: "warning"
             });
           }
-          if (data.data) {
-            this.log_output += data.data + "<br/>";
+          if (data.data && this.$refs.log_output) {
+            this.$refs.log_output.innerText += data.data;
             this.scroll_publish(null);
           }
           if (data.status && data.status == "OK") {

@@ -11,6 +11,7 @@
       <el-table-column prop="description" label="描述"></el-table-column>
       <el-table-column prop="git_repo_id" label="git仓库id"></el-table-column>
       <el-table-column prop="git_branches" label="git发布分支"></el-table-column>
+      <el-table-column prop="profile" label="npm打包环境"></el-table-column>
       <el-table-column prop="source_file_dir" label="发布文件位置"></el-table-column>
       <el-table-column prop="to_ip" label="目标服务器ip"></el-table-column>
       <el-table-column prop="to_project_home" label="目标服务器项目主目录"></el-table-column>

@@ -38,6 +38,16 @@
           ></el-option>
         </el-select>
       </el-form-item>
+      <el-form-item label="发布环境">
+        <el-select v-model="publishment.profile" placeholder="请选择">
+          <el-option
+            v-for="item in profile_options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          ></el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item label="发布文件位置（相对）" prop="source_file_dir">
         <el-input v-model="publishment.source_file_dir" placeholder="eg: assets"></el-input>
       </el-form-item>
