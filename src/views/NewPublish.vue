@@ -6,6 +6,7 @@
       :rules="rules"
       label-position="left"
       label-width="200px"
+      v-loading="loading"
     >
       <el-form-item label="发布名称" prop="name">
         <el-input v-model="publishment.name" placeholder="eg: develop_youxuan_supplier_web"></el-input>
@@ -29,6 +30,14 @@
         </el-select>
       </el-form-item>
       <el-form-item label="git分支" prop="git_branches">
+        <el-select v-model="publishment.git_branch_type" placeholder="请选择">
+          <el-option
+            v-for="item in git_branch_types"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          ></el-option>
+        </el-select>
         <el-select
           v-model="publishment.git_branches"
           multiple
@@ -133,9 +142,10 @@ export default {
         name: null,
         description: null,
         git_repo_id: null,
+        git_branch_type: "branches",
         git_branches: null,
         profile: null,
-        source_file_dir: 'target',
+        source_file_dir: "target",
         to_ip: null,
         to_project_home: null,
         to_process_name: null,
@@ -146,11 +156,25 @@ export default {
         git_delete_temp_branch: null
       },
       git_repo_options: [],
-      git_branch_options: [
+      git_branch_types: [
         {
-          value: "master",
-          label: "master"
+          value: "branches",
+          label: "分支"
+        },
+        {
+          value: "tags",
+          label: "标签"
+        },
+        {
+          value: "commits",
+          label: "提交记录"
         }
+      ],
+      git_branch_options: [
+        // {
+        //   value: "master",
+        //   label: "master"
+        // }
       ],
       profile_options: [
         {
@@ -222,11 +246,11 @@ export default {
       rules: {
         name: [
           { required: true, message: "请输入发布名称", trigger: "blur" },
-          { min: 3, max: 20, message: "长度在3到20个字符", trigger: "blur" }
+          { min: 3, max: 50, message: "长度在3到50个字符", trigger: "blur" }
         ],
         description: [
           { required: true, message: "请输入发布名称", trigger: "blur" },
-          { min: 5, max: 40, message: "长度在5到40个字符", trigger: "blur" }
+          { min: 5, max: 100, message: "长度在5到100个字符", trigger: "blur" }
         ],
         git_repo_id: [
           { required: true, message: "请选择git仓库地址", trigger: "change" }
@@ -254,32 +278,67 @@ export default {
             trigger: "blur"
           }
         ]
-      }
+      },
+      loading: false
     };
   },
   methods: {
     list_git_repos() {
-      http.get("/git/repos").then(response => {
-        this.git_repo_options.length = 0;
-        response.data.forEach(repo => {
-          this.git_repo_options.push({
-            value: repo.id,
-            label: repo.ssh_url_to_repo + " (" + repo.description + ")"
+      this.loading = true;
+      http
+        .get("/git/repos")
+        .then(response => {
+          this.git_repo_options.length = 0;
+          response.data.forEach(repo => {
+            this.git_repo_options.push({
+              value: repo.id,
+              label: repo.ssh_url_to_repo + " (" + repo.description + ")"
+            });
           });
+        })
+        .catch(error => {
+          console.log("error: " + error);
+        })
+        .then(() => {
+          this.loading = false;
         });
-      });
     },
     get_git_repo_branches() {
       if (!this.publishment.git_repo_id) {
+        this.$message({
+          message: "请先选择一个git仓库",
+          type: "warning"
+        });
         return;
       }
+      this.loading = true;
       http
-        .get("/git/repo/" + this.publishment.git_repo_id + "/branches")
+        .get(
+          "/git/repo/" +
+            this.publishment.git_repo_id +
+            "/" +
+            this.publishment.git_branch_type
+        )
         .then(response => {
+          // reset
           this.git_branch_options.length = 0;
           response.data.forEach(branch => {
-            this.git_branch_options.push({ value: branch, label: branch });
+            var branch_value =
+              // this.publishment.git_branch_type == "tags" ||
+              this.publishment.git_branch_type == "commits"
+                ? branch + "@" + this.publishment.git_branch_type
+                : branch;
+            this.git_branch_options.push({
+              value: branch_value,
+              label: branch
+            });
           });
+        })
+        .catch(error => {
+          console.log("error: " + error);
+        })
+        .then(() => {
+          this.loading = false;
         });
     },
     change_ip_group() {
@@ -311,7 +370,6 @@ export default {
       http
         .request({ url: "/publishment", method: "PUT", data: this.publishment })
         .then(response => {
-          // console.log(response);
           this.$message({
             showClose: true,
             message: "保存成功",
@@ -320,7 +378,6 @@ export default {
           this.$router.push({ path: "/publishList" });
         })
         .catch(error => {
-          console.log(error);
           this.$message.error("保存失败");
         });
     },

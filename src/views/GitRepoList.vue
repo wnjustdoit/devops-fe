@@ -15,9 +15,25 @@
       <el-table-column prop="created_by" label="创建人"></el-table-column>
       <el-table-column prop="last_updated_at" label="最后更新时间"></el-table-column>
       <el-table-column prop="last_updated_by" label="最后更新人"></el-table-column>
+      <el-table-column prop="web_hooks" label="Web Hooks"></el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button type="danger" @click="deleteItem(scope.row.id)">删除</el-button>
+          <el-button type="danger" circle icon="el-icon-delete" @click="deleteItem(scope.row.id)">删除</el-button>
+          <el-button
+            type="info"
+            plain
+            circle
+            icon="el-icon-edit"
+            @click="add_gitlab_web_hook(scope.row.id)"
+            v-if="scope.row.web_hooks == '[]'"
+          >添加Hook</el-button>
+          <el-button
+            type="danger"
+            circle
+            icon="el-icon-delete"
+            @click="delete_gitlab_web_hook(scope.row.id)"
+            v-if="scope.row.web_hooks != '[]'"
+          >删除Hook</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -43,9 +59,9 @@ export default {
         .get("/git/repos", {})
         .then(response => {
           this.gitRepoList = response.data;
+          this.list_project_web_hooks();
         })
         .catch(error => {
-          console.log(error);
           this.$message.error("查询失败");
         });
       // http
@@ -89,7 +105,6 @@ export default {
       http
         .post("/git/repos/database")
         .then(response => {
-          console.log(response);
           this.$message({
             showClose: true,
             message: "同步git信息成功",
@@ -98,11 +113,63 @@ export default {
           this.list_git_repos();
         })
         .catch(error => {
-          console.error(error);
           this.$message.error("更新失败");
         })
         .then(() => {
           this.loading = false;
+        });
+    },
+    list_project_web_hooks() {
+      this.gitRepoList.forEach(gitRepo => {
+        http
+          .get("/git/repo/" + gitRepo.id + "/web_hooks")
+          .then(response => {
+            gitRepo.id = gitRepo.id + "";
+            gitRepo.web_hooks = JSON.stringify(response.data);
+          })
+          .catch(error => {
+            this.$message.error("查询失败");
+          });
+      });
+    },
+    add_gitlab_web_hook(id) {
+      http
+        .request({
+          url: "/git/repo/" + id + "/web_hook",
+          method: "PUT",
+          data: null
+        })
+        .then(response => {
+          this.$message({
+            showClose: true,
+            message: "保存成功",
+            type: "success"
+          });
+          this.list_git_repos();
+        })
+        .catch(error => {
+          this.$message.error("保存失败");
+        });
+    },
+    delete_gitlab_web_hook(id) {
+      this.$confirm("确认删除？")
+        .then(_ => {
+          http
+            .delete("/git/repo/" + id + "/web_hook")
+            .then(response => {
+              this.$message({
+                showClose: true,
+                message: "删除成功",
+                type: "success"
+              });
+              this.list_git_repos();
+            })
+            .catch(error => {
+              this.$message.error("删除失败");
+            });
+        })
+        .catch(_ => {
+          this.$message("已取消");
         });
     }
   },

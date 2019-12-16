@@ -6,6 +6,7 @@
       :rules="rules"
       label-position="left"
       label-width="200px"
+      v-loading="loading"
     >
       <el-form-item label="发布名称" prop="name">
         <el-input v-model="publishment.name" placeholder="eg: develop_mama_cdn"></el-input>
@@ -14,11 +15,7 @@
         <el-input v-model="publishment.description" placeholder="eg: mama cdn静态资源（线下环境）"></el-input>
       </el-form-item>
       <el-form-item label="git仓库地址" prop="git_repo_id">
-        <el-select
-          v-model="publishment.git_repo_id"
-          filterable
-          placeholder="请选择"
-        >
+        <el-select v-model="publishment.git_repo_id" filterable placeholder="请选择">
           <el-option
             v-for="item in git_repo_options"
             :key="item.value"
@@ -43,7 +40,10 @@
         </el-select>
       </el-form-item>
       <el-form-item label="发布文件位置（相对）" prop="source_file_dir">
-        <el-input v-model="publishment.source_file_dir" placeholder="eg: childfolder1/grandchildfolder1"></el-input>
+        <el-input
+          v-model="publishment.source_file_dir"
+          placeholder="eg: childfolder1/grandchildfolder1"
+        ></el-input>
       </el-form-item>
       <el-form-item label="目标服务器" prop="to_ip">
         <el-select
@@ -169,11 +169,11 @@ export default {
       rules: {
         name: [
           { required: true, message: "请输入发布名称", trigger: "blur" },
-          { min: 3, max: 20, message: "长度在3到20个字符", trigger: "blur" }
+          { min: 3, max: 50, message: "长度在3到50个字符", trigger: "blur" }
         ],
         description: [
           { required: true, message: "请输入发布名称", trigger: "blur" },
-          { min: 5, max: 40, message: "长度在5到40个字符", trigger: "blur" }
+          { min: 5, max: 100, message: "长度在5到100个字符", trigger: "blur" }
         ],
         git_repo_id: [
           { required: true, message: "请选择git仓库地址", trigger: "change" }
@@ -181,27 +181,46 @@ export default {
         git_branches: [
           { required: true, message: "请选择git分支名称", trigger: "change" }
         ],
-        to_ip: null,
-        to_project_home: null
-      }
+        to_ip: [
+          { required: true, message: "请选择目标服务器ip", trigger: "change" }
+        ],
+        to_project_home: [
+          {
+            required: true,
+            message: "请输入目标服务器项目主目录",
+            trigger: "blur"
+          }
+        ]
+      },
+      loading: false
     };
   },
   methods: {
     list_git_repos() {
-      http.get("/git/repos").then(response => {
-        this.git_repo_options.length = 0;
-        response.data.forEach(repo => {
-          this.git_repo_options.push({
-            value: repo.id,
-            label: repo.ssh_url_to_repo + " (" + repo.description + ")"
+      this.loading = true;
+      http
+        .get("/git/repos")
+        .then(response => {
+          this.git_repo_options.length = 0;
+          response.data.forEach(repo => {
+            this.git_repo_options.push({
+              value: repo.id,
+              label: repo.ssh_url_to_repo + " (" + repo.description + ")"
+            });
           });
+        })
+        .catch(error => {
+          console.log("error: " + error);
+        })
+        .then(() => {
+          this.loading = false;
         });
-      });
     },
     get_git_repo_branches() {
       if (!this.publishment.git_repo_id) {
         return;
       }
+      this.loading = true;
       http
         .get("/git/repo/" + this.publishment.git_repo_id + "/branches")
         .then(response => {
@@ -209,6 +228,12 @@ export default {
           response.data.forEach(branch => {
             this.git_branch_options.push({ value: branch, label: branch });
           });
+        })
+        .catch(error => {
+          console.log("error: " + error);
+        })
+        .then(() => {
+          this.loading = false;
         });
     },
     change_ip_group() {
@@ -239,7 +264,11 @@ export default {
         }
       });
       http
-        .request({ url: "/publishmentStatic", method: "PUT", data: this.publishment })
+        .request({
+          url: "/publishmentStatic",
+          method: "PUT",
+          data: this.publishment
+        })
         .then(response => {
           console.log(response);
           _this.$message({

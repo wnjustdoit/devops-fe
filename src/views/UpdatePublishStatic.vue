@@ -1,6 +1,6 @@
 <template>
   <div class="publish">
-    <el-form ref="form" :model="publishment" label-width="200px" v-loading="loading">
+    <el-form ref="form" :model="publishment" :rules="rules" label-width="200px" v-loading="loading">
       <el-form-item label="发布名称">
         <el-input v-model="publishment.name" placeholder="eg: develop_youxuan_supplier_web"></el-input>
       </el-form-item>
@@ -157,6 +157,35 @@ export default {
           ]
         }
       ],
+      rules: {
+        name: [
+          { required: true, message: "请输入发布名称", trigger: "blur" },
+          { min: 3, max: 50, message: "长度在3到50个字符", trigger: "blur" }
+        ],
+        description: [
+          { required: true, message: "请输入发布名称", trigger: "blur" },
+          { min: 5, max: 100, message: "长度在5到100个字符", trigger: "blur" }
+        ],
+        git_repo_id: [
+          { required: true, message: "请选择git仓库地址", trigger: "change" }
+        ],
+        git_branches: [
+          { required: true, message: "请选择git分支名称", trigger: "change" }
+        ],
+        profile: [
+          { required: true, message: "请选择发布环境", trigger: "change" }
+        ],
+        to_ip: [
+          { required: true, message: "请选择目标服务器ip", trigger: "change" }
+        ],
+        to_project_home: [
+          {
+            required: true,
+            message: "请输入目标服务器项目主目录",
+            trigger: "blur"
+          }
+        ]
+      },
       loading: false
     };
   },
@@ -180,7 +209,7 @@ export default {
           });
         })
         .catch(error => {
-          console.log("error: " + error);
+          this.$message.error("查询失败");
         })
         .then(() => {
           this.loading = false;
@@ -204,8 +233,6 @@ export default {
         });
     },
     change_ip_group() {
-      console.log("========" + this.publishment.profile);
-      // console.log(this._to_ip_options);
       if (!this.publishment.profile) {
         return;
       }
@@ -245,9 +272,13 @@ export default {
           this.get_publishment();
         })
         .catch(error => {
-          console.log(error);
+          this.$message.error("保存失败");
         });
     }
+  },
+  mounted() {
+    // document.getElementById("static").className =
+    //   document.getElementById("static").className + " el-menu-item is-active";
   },
   created() {
     this.list_git_repos();

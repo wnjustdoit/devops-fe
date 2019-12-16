@@ -6,26 +6,42 @@
       </el-input>
     </div>
     <el-table :data="publishList" border style="width: 100%">
-      <el-table-column prop="id" label="发布系统id"></el-table-column>
+      <el-table-column prop="id" label="id"></el-table-column>
       <el-table-column prop="name" label="名称"></el-table-column>
       <el-table-column prop="description" label="描述"></el-table-column>
-      <el-table-column prop="git_repo_id" label="git仓库id"></el-table-column>
+      <el-table-column prop="git_repo.path_with_namespace" label="git仓库"></el-table-column>
       <el-table-column prop="git_branches" label="git发布分支"></el-table-column>
       <el-table-column prop="profile" label="maven打包环境"></el-table-column>
-      <el-table-column prop="source_file_dir" label="发布文件位置"></el-table-column>
       <el-table-column prop="to_ip" label="目标服务器ip"></el-table-column>
-      <el-table-column prop="to_project_home" label="目标服务器项目主目录"></el-table-column>
-      <el-table-column prop="to_process_name" label="目标服务器项目进程关键词"></el-table-column>
-      <el-table-column prop="to_java_opts" label="目标服务器上java应用运行变量"></el-table-column>
-      <el-table-column prop="git_merged_branch" label="git合并到的分支名"></el-table-column>
-      <el-table-column prop="git_tag_version" label="git打标签名"></el-table-column>
-      <el-table-column prop="git_tag_comment" label="git打标签备注"></el-table-column>
-      <el-table-column prop="git_delete_temp_branch" label="是否删除临时分支"></el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button type="danger" @click="toPublish(scope.row.id)">发布</el-button>|
-          <el-button type="danger" @click="toUpdate(scope.row.id)">修改</el-button>
-          <el-button type="danger" @click="deleteItem(scope.row.id)">删除</el-button>
+          <el-button type="primary" circle icon="el-icon-edit" @click="toUpdate(scope.row.id)">修改</el-button>
+          <el-button type="danger" circle icon="el-icon-delete" @click="deleteItem(scope.row.id)">删除</el-button>
+        </template>
+      </el-table-column>
+      <el-table-column label="发布操作">
+        <template slot-scope="scope">
+          <el-button
+            type="primary"
+            circle
+            icon="el-icon-s-promotion"
+            @click="toPublish(scope.row.id)"
+          >发布</el-button>
+          <el-button
+            type="primary"
+            plain
+            circle
+            icon="el-icon-close"
+            @click="shutdown(scope.row.id)"
+          >停机</el-button>
+          <!-- TODO v-if -->
+          <el-button
+            type="primary"
+            plain
+            circle
+            icon="el-icon-refresh"
+            @click="reboot(scope.row.id)"
+          >重启</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -56,9 +72,10 @@ export default {
     };
   },
   methods: {
-    search_projects_publishment() {
-      var _this = this;
-      // console.log(this.keyword + "-" + this.currentPage);
+    search_projects_publishment(pageNo) {
+      if (pageNo) {
+        this.currentPage = pageNo;
+      }
       http
         .get("/publishment/list", {
           params: { keyword: this.keyword, current_page: this.currentPage }
@@ -67,23 +84,9 @@ export default {
           this.publishList = response.data.data;
           this.total = response.data.total;
         })
-        .catch(function(error) {
-          console.log(error);
-          _this.$message.error("查询失败");
+        .catch(error => {
+          this.$message.error("查询失败");
         });
-      // http
-      //   .post("/publishment/login", this.userLoginInfo)
-      //   .then(function(response) {
-      //     console.log(response);
-      //     if (response.id) {
-      //       this.router.push({
-      //         path: "/"
-      //       });
-      //     }
-      //   })
-      //   .catch(function(error) {
-      //     console.log(error);
-      //   });
     },
     toUpdate(id) {
       this.$router.push({
@@ -94,8 +97,7 @@ export default {
       });
     },
     deleteItem(id) {
-      this
-        .$confirm("确认删除？")
+      this.$confirm("确认删除？")
         .then(_ => {
           http
             .delete("/publishment/" + id)
@@ -122,6 +124,44 @@ export default {
           id: id
         }
       });
+    },
+    shutdown(id) {
+      http
+        .post("/publish/shutdown/" + id)
+        .then(response => {
+          if (response.data.status == "OK") {
+            this.$message({
+              showClose: true,
+              message: "停机成功",
+              type: "success"
+            });
+            this.search_projects_publishment();
+          } else {
+            this.$message.error("停机失败");
+          }
+        })
+        .catch(error => {
+          this.$message.error("停机失败");
+        });
+    },
+    reboot(id) {
+      http
+        .post("/publish/reboot/" + id)
+        .then(response => {
+          if (response.data.status == "OK") {
+            this.$message({
+              showClose: true,
+              message: "重启成功",
+              type: "success"
+            });
+            this.search_projects_publishment();
+          } else {
+            this.$message.error("重启失败");
+          }
+        })
+        .catch(error => {
+          this.$message.error("重启失败");
+        });
     }
   },
   created() {

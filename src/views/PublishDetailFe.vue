@@ -105,7 +105,10 @@ export default {
         })
         .then(() => {});
 
-      this.$socket.client.emit("publish_event", { id: this.$route.query.id, type: 'fe' });
+      this.$socket.client.emit("publish_event", {
+        id: this.$route.query.id,
+        type: "fe"
+      });
       this.$socket.$subscribe(
         "publish_response_fe_" +
           this.getCookie("publish_client_id") +
@@ -171,6 +174,9 @@ export default {
     }
   },
   mounted() {
+    // document.getElementById("fe_vue").className =
+    //   document.getElementById("fe_vue").className + " el-menu-item is-active";
+
     // 自适应窗口
     this.resize_div();
     window.onresize = this.resize_div;

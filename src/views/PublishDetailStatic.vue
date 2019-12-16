@@ -101,11 +101,15 @@ export default {
           }
         })
         .catch(error => {
-          console.error(error);
+          this.$message.error("发布异常");
+          return;
         })
         .then(() => {});
 
-      this.$socket.client.emit("publish_event", { id: this.$route.query.id, type: 'static' });
+      this.$socket.client.emit("publish_event", {
+        id: this.$route.query.id,
+        type: "static"
+      });
       this.$socket.$subscribe(
         "publish_response_static_" +
           this.getCookie("publish_client_id") +
@@ -171,6 +175,9 @@ export default {
     }
   },
   mounted() {
+    // document.getElementById("static").className =
+    //   document.getElementById("static").className + " el-menu-item is-active";
+
     // 自适应窗口
     this.resize_div();
     window.onresize = this.resize_div;

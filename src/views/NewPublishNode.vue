@@ -1,41 +1,35 @@
 <template>
   <div class="publish">
-    <!-- <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item>后端发布</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ path: '/publishList' }">发布列表</el-breadcrumb-item>
-      <el-breadcrumb-item>更新发布</el-breadcrumb-item>
-    </el-breadcrumb>-->
-    <el-form ref="form" :model="publishment" :rules="rules" label-width="200px" v-loading="loading">
-      <el-form-item label="发布名称">
-        <el-input v-model="publishment.name" placeholder="eg: develop_youxuan_supplier_web"></el-input>
+    <el-form
+      ref="publishment"
+      :model="publishment"
+      :rules="rules"
+      label-position="left"
+      label-width="200px"
+      v-loading="loading"
+    >
+      <el-form-item label="发布名称" prop="name">
+        <el-input v-model="publishment.name" placeholder="eg: develop_xiaodian_fe_nodejs"></el-input>
       </el-form-item>
-      <el-form-item label="描述">
-        <el-input v-model="publishment.description" placeholder="eg: 妈妈优选供应商web端（线下环境）"></el-input>
+      <el-form-item label="描述" prop="description">
+        <el-input v-model="publishment.description" placeholder="eg: 进货商城门店前端nodejs（线下环境）"></el-input>
       </el-form-item>
-      <el-form-item label="git仓库地址">
-        <el-select
-          v-model="publishment.git_repo_id"
-          filterable
-          placeholder="请选择"
-          @click="list_git_repos()"
-          @change="resetBranch()"
-        >
+      <el-form-item label="git仓库地址" prop="git_repo_id">
+        <el-select v-model="publishment.git_repo_id" filterable placeholder="请选择">
           <el-option
             v-for="item in git_repo_options"
             :key="item.value"
             :label="item.label"
             :value="item.value"
           ></el-option>
-        </el-select>*
+        </el-select>
       </el-form-item>
-      <el-form-item label="git分支">
+      <el-form-item label="git分支" prop="git_branches">
         <el-select
           v-model="publishment.git_branches"
           multiple
-          filterable
-          allow-create
-          placeholder="请选择（支持多选）"
-          @focus="get_git_repo_branches()"
+          placeholder="请选择（单选）"
+          @click.native="get_git_repo_branches()"
         >
           <el-option
             v-for="item in git_branch_options"
@@ -45,7 +39,7 @@
           ></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="发布环境">
+      <el-form-item label="发布环境" prop="profile">
         <el-select v-model="publishment.profile" placeholder="请选择">
           <el-option
             v-for="item in profile_options"
@@ -56,15 +50,19 @@
         </el-select>
       </el-form-item>
       <el-form-item label="发布文件位置（相对）" prop="source_file_dir">
-        <el-input v-model="publishment.source_file_dir" placeholder="eg: target"></el-input>
+        <el-input
+          v-model="publishment.source_file_dir"
+          placeholder="eg: childfolder1/grandchildfolder1"
+        ></el-input>
       </el-form-item>
-      <el-form-item label="目标服务器">
+      <el-form-item label="目标服务器" prop="to_ip">
         <el-select
           v-model="publishment.to_ip"
           multiple
           filterable
           allow-create
-          placeholder="请选择或输入（暂时单项）"
+          placeholder="请选择或输入（单选）"
+          @click.native="change_ip_group()"
           @focus="change_ip_group()"
         >
           <el-option-group v-for="group in to_ip_options" :key="group.label" :label="group.label">
@@ -77,57 +75,21 @@
           </el-option-group>
         </el-select>
       </el-form-item>
-      <el-form-item label="目标服务器项目目录">
+      <el-form-item label="目标服务器项目目录" prop="to_project_home">
         <el-input
           v-model="publishment.to_project_home"
           placeholder="eg: /data/project/mama_[project_name]"
         ></el-input>
       </el-form-item>
-      <el-form-item label="目标服务器进程名关键词">
-        <el-input
-          v-model="publishment.to_process_name"
-          placeholder="eg: xiaodian-usercenter(-1.0.0-SNAPSHOT.jar) 杀死进程和发布时版本通常省略"
-        ></el-input>
-      </el-form-item>
-      <el-form-item label="java变量">
-        <el-input
-          v-model="publishment.to_java_opts"
-          placeholder="eg: -Xms768m -Xmx768m 线下可配置区间值如：-Xms256m -Xmx1024m"
-        ></el-input>
-      </el-form-item>
-      <el-form-item label="发布完毕合并到git分支">
-        <el-select
-          v-model="publishment.git_merged_branch"
-          clearable
-          placeholder="请选择"
-          @click="get_git_repo_branches()"
-        >
-          <el-option
-            v-for="item in git_branch_options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          ></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="发布完毕后打标签名">
-        <el-input v-model="publishment.git_tag_version" placeholder="eg: v1.0.0"></el-input>
-      </el-form-item>
-      <el-form-item label="发布完毕后打标签注释">
-        <el-input v-model="publishment.git_tag_comment" placeholder="eg: 项目的第一个版本"></el-input>
-      </el-form-item>
-      <el-form-item label="发布完毕后是否删除临时分支">
-        <el-checkbox v-model="publishment.git_delete_temp_branch">删除临时分支</el-checkbox>
-      </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit">修改</el-button>
+        <el-button type="primary" @click="onSubmit">立即创建</el-button>|
+        <el-button @click="resetForm('ruleForm')">重置</el-button>
       </el-form-item>
     </el-form>
   </div>
 </template>
 <script>
 import http from "../util/http.js";
-import { async } from "q";
 export default {
   data() {
     return {
@@ -137,44 +99,28 @@ export default {
         git_repo_id: null,
         git_branches: null,
         profile: null,
-        source_file_dir: null,
         to_ip: null,
-        to_project_home: null,
-        to_process_name: null,
-        to_java_opts: null,
-        git_merged_branch: null,
-        git_tag_version: null,
-        git_tag_comment: null,
-        git_delete_temp_branch: null
+        to_project_home: null
       },
       git_repo_options: [],
-      git_branch_options: [],
+      git_branch_options: [
+        {
+          value: "master",
+          label: "master"
+        }
+      ],
       profile_options: [
         {
-          value: "dev",
-          label: "开发环境（dev）"
-        },
-        {
           value: "test",
-          label: "测试环境（test）"
+          label: "开发环境（test）"
         },
         {
           value: "pre",
           label: "预发环境（pre）"
         },
         {
-          value: "online",
-          label: "生产环境（online）"
-        }
-      ],
-      username_options: [
-        {
-          value: "root",
-          label: "root"
-        },
-        {
-          value: "javaer",
-          label: "javaer"
+          value: "build",
+          label: "生产环境（build）"
         }
       ],
       to_ip_options: [
@@ -253,24 +199,12 @@ export default {
             message: "请输入目标服务器项目主目录",
             trigger: "blur"
           }
-        ],
-        to_process_name: [
-          {
-            required: true,
-            message: "请输入目标服务器项目进程名",
-            trigger: "blur"
-          }
         ]
       },
       loading: false
     };
   },
   methods: {
-    get_publishment() {
-      http.get("/publishment/" + this.$route.query.id).then(response => {
-        this.publishment = response.data;
-      });
-    },
     list_git_repos() {
       this.loading = true;
       http
@@ -285,7 +219,7 @@ export default {
           });
         })
         .catch(error => {
-          console.log("error: " + error);
+          this.$message.error("查询失败");
         })
         .then(() => {
           this.loading = false;
@@ -304,13 +238,14 @@ export default {
             this.git_branch_options.push({ value: branch, label: branch });
           });
         })
+        .catch(error => {
+          this.$message.error("查询失败");
+        })
         .then(() => {
           this.loading = false;
         });
     },
     change_ip_group() {
-      console.log("========" + this.publishment.profile);
-      // console.log(this._to_ip_options);
       if (!this.publishment.profile) {
         return;
       }
@@ -325,45 +260,36 @@ export default {
       //   this.to_ip_options.push(this._to_ip_options[2]);
       // }
     },
-    sleep(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    },
-    resetBranch() {
-      this.publishment.git_branches = null;
-      this.publishment.git_merged_branch = null;
-    },
     onSubmit() {
+      this.$refs["publishment"].validate(valid => {
+        if (!valid) {
+          return false;
+        }
+      });
       http
         .request({
-          url: "/publishment",
-          method: "POST",
+          url: "/publishmentNodejs",
+          method: "PUT",
           data: this.publishment
         })
         .then(response => {
-          console.log(response);
           this.$message({
             showClose: true,
-            message: "修改成功",
+            message: "保存成功",
             type: "success"
           });
-          // this.sleep(1200).then(() => {
-          //   this.$router.go(0);
-          // });
-          this.get_publishment();
+          this.$router.push({ path: "/publishListNode" });
         })
         .catch(error => {
-          console.log(error);
+          this.$message.error("保存失败");
         });
+    },
+    resetForm() {
+      this.$refs["publishment"].resetFields();
     }
-  },
-  mounted() {
-    // document.getElementById("backend").className =
-    //   document.getElementById("backend").className + " el-menu-item is-active";
   },
   created() {
     this.list_git_repos();
-    this.get_git_repo_branches();
-    this.get_publishment();
   }
 };
 </script>

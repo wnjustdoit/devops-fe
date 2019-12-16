@@ -52,7 +52,7 @@ export default {
   methods: {
     search_projects_publishment() {
       http
-        .get("/publishmentFe/list", {
+        .get("/publishmentNodejs/list", {
           params: { keyword: this.keyword, current_page: this.currentPage }
         })
         .then(response => {
@@ -65,7 +65,7 @@ export default {
     },
     toUpdate(id) {
       this.$router.push({
-        path: "/updatePublishFe",
+        path: "/updatePublishNode",
         query: {
           id: id
         }
@@ -75,7 +75,7 @@ export default {
       this.$confirm("确认删除？")
         .then(_ => {
           http
-            .delete("/publishmentFe/" + id)
+            .delete("/publishmentNodejs/" + id)
             .then(response => {
               this.$message({
                 showClose: true,
@@ -94,7 +94,7 @@ export default {
     },
     toPublish(id) {
       this.$router.push({
-        path: "/publishDetailFe/",
+        path: "/publishDetailNode/",
         query: {
           id: id
         }

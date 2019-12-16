@@ -16,9 +16,9 @@
       <el-table-column prop="to_project_home" label="目标服务器项目主目录"></el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button type="danger" @click="toPublish(scope.row.id)">发布</el-button>|
-          <el-button type="danger" @click="toUpdate(scope.row.id)">修改</el-button>
-          <el-button type="danger" @click="deleteItem(scope.row.id)">删除</el-button>
+          <el-button type="primary" circle icon="el-icon-s-promotion" @click="toPublish(scope.row.id)">发布</el-button>
+          <el-button type="info" plain circle icon="el-icon-edit" @click="toUpdate(scope.row.id)">修改</el-button>
+          <el-button type="danger" circle icon="el-icon-delete" @click="deleteItem(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

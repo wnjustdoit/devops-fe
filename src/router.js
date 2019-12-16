@@ -1,6 +1,6 @@
 import Vue from "vue";
 import Router from "vue-router";
-import Home from "./views/Home.vue";
+import Index from "./views/Index.vue";
 
 Vue.use(Router);
 export default new Router({
@@ -9,8 +9,8 @@ export default new Router({
   routes: [
     {
       path: "/",
-      name: "home",
-      component: Home
+      name: "index",
+      component: Index
     },
     {
       path: "/about",
@@ -22,13 +22,13 @@ export default new Router({
         import("./views/About.vue")
     },
     {
-      path: "/login",
-      name: "login",
+      path: "/userLogin",
+      name: "userLogin",
       // route level code-splitting
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () =>
-        import("./views/Login.vue")
+        import("./views/UserLogin.vue")
     },
     {
       path: "/gitRepoList",
@@ -83,7 +83,7 @@ export default new Router({
       // which is lazy-loaded when the route is visited.
       component: () =>
         import("./views/NewPublishStatic.vue")
-     },
+    },
     {
       path: "/updatePublishStatic",
       name: "updatePublishStatic",
@@ -120,7 +120,7 @@ export default new Router({
       // which is lazy-loaded when the route is visited.
       component: () =>
         import("./views/NewPublishFe.vue")
-     },
+    },
     {
       path: "/updatePublishFe",
       name: "updatePublishFe",
@@ -148,6 +148,79 @@ export default new Router({
       // which is lazy-loaded when the route is visited.
       component: () =>
         import("./views/PublishDetailFe.vue")
+    },
+    {
+      path: "/newPublishNode",
+      name: "newPublishNode",
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () =>
+        import("./views/NewPublishNode.vue")
+    },
+    {
+      path: "/updatePublishNode",
+      name: "updatePublishNode",
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () =>
+        import("./views/UpdatePublishNode.vue")
+    }
+    ,
+    {
+      path: "/publishListNode",
+      name: "publishListNode",
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () =>
+        import("./views/PublishListNode.vue")
+    },
+    {
+      path: "/publishDetailNode",
+      name: "publishDetailNode",
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () =>
+        import("./views/PublishDetailNode.vue")
+    },
+    {
+      path: "/publishedList",
+      name: "publishedList",
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () =>
+        import("./views/PublishedList.vue")
+    },
+    {
+      path: "/publishedDetail",
+      name: "publishedDetail",
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () =>
+        import("./views/PublishedDetail.vue")
+    },
+    {
+      path: "/newUser",
+      name: "newUser",
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () =>
+        import("./views/NewUser.vue")
+    },
+    {
+      path: "/userList",
+      name: "userList",
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () =>
+        import("./views/UserList.vue")
     }
   ]
 });

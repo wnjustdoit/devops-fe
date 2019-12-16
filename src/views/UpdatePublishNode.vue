@@ -1,10 +1,5 @@
 <template>
   <div class="publish">
-    <!-- <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item>后端发布</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ path: '/publishList' }">发布列表</el-breadcrumb-item>
-      <el-breadcrumb-item>更新发布</el-breadcrumb-item>
-    </el-breadcrumb>-->
     <el-form ref="form" :model="publishment" :rules="rules" label-width="200px" v-loading="loading">
       <el-form-item label="发布名称">
         <el-input v-model="publishment.name" placeholder="eg: develop_youxuan_supplier_web"></el-input>
@@ -32,9 +27,7 @@
         <el-select
           v-model="publishment.git_branches"
           multiple
-          filterable
-          allow-create
-          placeholder="请选择（支持多选）"
+          placeholder="请选择（单选）"
           @focus="get_git_repo_branches()"
         >
           <el-option
@@ -56,7 +49,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="发布文件位置（相对）" prop="source_file_dir">
-        <el-input v-model="publishment.source_file_dir" placeholder="eg: target"></el-input>
+        <el-input v-model="publishment.source_file_dir" placeholder="eg: assets"></el-input>
       </el-form-item>
       <el-form-item label="目标服务器">
         <el-select
@@ -64,7 +57,7 @@
           multiple
           filterable
           allow-create
-          placeholder="请选择或输入（暂时单项）"
+          placeholder="请选择或输入（单选）"
           @focus="change_ip_group()"
         >
           <el-option-group v-for="group in to_ip_options" :key="group.label" :label="group.label">
@@ -82,42 +75,6 @@
           v-model="publishment.to_project_home"
           placeholder="eg: /data/project/mama_[project_name]"
         ></el-input>
-      </el-form-item>
-      <el-form-item label="目标服务器进程名关键词">
-        <el-input
-          v-model="publishment.to_process_name"
-          placeholder="eg: xiaodian-usercenter(-1.0.0-SNAPSHOT.jar) 杀死进程和发布时版本通常省略"
-        ></el-input>
-      </el-form-item>
-      <el-form-item label="java变量">
-        <el-input
-          v-model="publishment.to_java_opts"
-          placeholder="eg: -Xms768m -Xmx768m 线下可配置区间值如：-Xms256m -Xmx1024m"
-        ></el-input>
-      </el-form-item>
-      <el-form-item label="发布完毕合并到git分支">
-        <el-select
-          v-model="publishment.git_merged_branch"
-          clearable
-          placeholder="请选择"
-          @click="get_git_repo_branches()"
-        >
-          <el-option
-            v-for="item in git_branch_options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          ></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="发布完毕后打标签名">
-        <el-input v-model="publishment.git_tag_version" placeholder="eg: v1.0.0"></el-input>
-      </el-form-item>
-      <el-form-item label="发布完毕后打标签注释">
-        <el-input v-model="publishment.git_tag_comment" placeholder="eg: 项目的第一个版本"></el-input>
-      </el-form-item>
-      <el-form-item label="发布完毕后是否删除临时分支">
-        <el-checkbox v-model="publishment.git_delete_temp_branch">删除临时分支</el-checkbox>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="onSubmit">修改</el-button>
@@ -139,13 +96,7 @@ export default {
         profile: null,
         source_file_dir: null,
         to_ip: null,
-        to_project_home: null,
-        to_process_name: null,
-        to_java_opts: null,
-        git_merged_branch: null,
-        git_tag_version: null,
-        git_tag_comment: null,
-        git_delete_temp_branch: null
+        to_project_home: null
       },
       git_repo_options: [],
       git_branch_options: [],
@@ -165,16 +116,6 @@ export default {
         {
           value: "online",
           label: "生产环境（online）"
-        }
-      ],
-      username_options: [
-        {
-          value: "root",
-          label: "root"
-        },
-        {
-          value: "javaer",
-          label: "javaer"
         }
       ],
       to_ip_options: [
@@ -253,13 +194,6 @@ export default {
             message: "请输入目标服务器项目主目录",
             trigger: "blur"
           }
-        ],
-        to_process_name: [
-          {
-            required: true,
-            message: "请输入目标服务器项目进程名",
-            trigger: "blur"
-          }
         ]
       },
       loading: false
@@ -267,7 +201,7 @@ export default {
   },
   methods: {
     get_publishment() {
-      http.get("/publishment/" + this.$route.query.id).then(response => {
+      http.get("/publishmentNodejs/" + this.$route.query.id).then(response => {
         this.publishment = response.data;
       });
     },
@@ -285,7 +219,7 @@ export default {
           });
         })
         .catch(error => {
-          console.log("error: " + error);
+          this.$message.error("请求失败");
         })
         .then(() => {
           this.loading = false;
@@ -309,8 +243,6 @@ export default {
         });
     },
     change_ip_group() {
-      console.log("========" + this.publishment.profile);
-      // console.log(this._to_ip_options);
       if (!this.publishment.profile) {
         return;
       }
@@ -330,35 +262,30 @@ export default {
     },
     resetBranch() {
       this.publishment.git_branches = null;
-      this.publishment.git_merged_branch = null;
     },
     onSubmit() {
       http
         .request({
-          url: "/publishment",
+          url: "/publishmentNodejs",
           method: "POST",
           data: this.publishment
         })
         .then(response => {
-          console.log(response);
           this.$message({
             showClose: true,
             message: "修改成功",
             type: "success"
           });
-          // this.sleep(1200).then(() => {
-          //   this.$router.go(0);
-          // });
           this.get_publishment();
         })
         .catch(error => {
-          console.log(error);
+          this.$message.error("修改失败");
         });
     }
   },
   mounted() {
-    // document.getElementById("backend").className =
-    //   document.getElementById("backend").className + " el-menu-item is-active";
+    // document.getElementById("nodejs").className =
+    //   document.getElementById("nodejs").className + " el-menu-item is-active";
   },
   created() {
     this.list_git_repos();
