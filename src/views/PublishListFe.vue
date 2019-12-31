@@ -1,11 +1,22 @@
 <template>
   <div class="publishList" v-loading="loading">
-    <div style="margin: auto; margin-top: 15px; margin-bottom: 15px; width: 300px;">
-      <el-input placeholder="请输入关键词" v-model="keyword" clearable class="search_txt">
-        <el-button slot="append" icon="el-icon-search" @click="search_projects_publishment()"></el-button>
+    <div style="justify-content: center; margin-bottom: 10px; width: 100%; display: flex;">
+      <el-input placeholder="请输入关键词" v-model="keyword" clearable size="small" style="width: 300px;">
+        <i slot="prefix" class="el-input__icon el-icon-search"></i>
       </el-input>
+      <el-button
+        type="primary"
+        size="small"
+        @click="search_projects_publishment()"
+      >搜索</el-button>
     </div>
-    <el-table :data="publishList" border style="width: 100%">
+    <el-table
+      :data="publishList"
+      border
+      style="width: 100%"
+      :cell-style="cellStyle"
+      :header-cell-style="headerCellStyle"
+    >
       <el-table-column prop="id" label="发布系统id"></el-table-column>
       <el-table-column prop="name" label="名称"></el-table-column>
       <el-table-column prop="description" label="描述"></el-table-column>
@@ -17,20 +28,48 @@
       <el-table-column prop="to_project_home" label="目标服务器项目主目录"></el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button type="primary" circle icon="el-icon-s-promotion" @click="toPublish(scope.row.id)">发布</el-button>
-          <el-button type="info" plain circle icon="el-icon-edit" @click="toUpdate(scope.row.id)">修改</el-button>
-          <el-button type="danger" circle icon="el-icon-delete" @click="deleteItem(scope.row.id)">删除</el-button>
+          <div style="padding-top: 2px; padding-bottom: 2px;">
+            <el-button
+              type="primary"
+              round
+              size="mini"
+              icon="el-icon-s-promotion"
+              @click="toPublish(scope.row.id)"
+            >发布</el-button>
+            <br />
+            <el-button
+              style="margin-top: 3px;"
+              type="info"
+              plain
+              round
+              size="mini"
+              icon="el-icon-edit"
+              @click="toUpdate(scope.row.id)"
+            >修改</el-button>
+            <br />
+            <el-button
+              style="margin-top: 3px;"
+              type="danger"
+              round
+              size="mini"
+              icon="el-icon-delete"
+              @click="deleteItem(scope.row.id)"
+            >删除</el-button>
+          </div>
         </template>
       </el-table-column>
     </el-table>
     <div class="pagination">
       <el-pagination
         background
-        @current-change="search_projects_publishment"
-        :current-page="currentPage"
-        :page-size="pageSize"
-        layout="total, prev, pager, next, jumper"
-        :total="total"
+        @size-change="change_page_size"
+        @current-change="change_page"
+        :current-page="this.currentPage"
+        :page-sizes="[10, 20, 30, 50]"
+        :page-size="this.pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="this.total"
+        :hide-on-single-page="true"
       ></el-pagination>
     </div>
   </div>
@@ -38,6 +77,7 @@
 
 <script>
 import http from "../util/http.js";
+import { cellStyle as cs, headerCellStyle as hcs } from "../assets/common.js";
 export default {
   data() {
     return {
@@ -50,6 +90,24 @@ export default {
     };
   },
   methods: {
+    cellStyle() {
+      return cs();
+    },
+    headerCellStyle() {
+      return hcs();
+    },
+    change_page(pageNo) {
+      if (pageNo) {
+        this.currentPage = pageNo;
+        this.search_projects_publishment();
+      }
+    },
+    change_page_size(pageSize) {
+      if (pageSize) {
+        this.pageSize = pageSize;
+        this.search_projects_publishment();
+      }
+    },
     search_projects_publishment() {
       http
         .get("/publishmentFe/list", {
@@ -107,12 +165,5 @@ export default {
 };
 </script>
 <style scoped>
-.publishList {
-  margin: auto;
-  margin-top: 10px;
-  width: 100%;
-}
-.publishList td {
-  width: 100px;
-}
+@import "../assets/common.css";
 </style>

@@ -1,22 +1,15 @@
 <template>
   <div>
-    <div>
-      <span>{{ $socket.connected ? 'Socket connected' : 'Socket disconnected' }}</span>
-      <span>
-        <span class="notification" v-if="$socket.disconnected" style="color: red;">
-          <el-divider direction="vertical"></el-divider>You are disconnected
-        </span>
-      </span>
+    <div style="margin-top: 5px; text-align: right; font-size: 12px; margin-right: 15px;">
+      <span v-if="$socket.connected" style="color: blue;">Socket connected</span>
+      <span v-if="$socket.disconnected" style="color: red;">Socket disconnected</span>
       <el-divider direction="vertical"></el-divider>
-      <el-switch
-        v-model="scroll_switch"
-        active-text="自动滚动"
-        inactive-text="取消"
-        @change="scroll_publish"
-      ></el-switch>
+      自动滚动日志：<el-switch v-if="$socket.connected" v-model="scroll_switch" @change="scroll_publish"></el-switch>
     </div>
-    <el-divider style="margin:10px 0;" content-position="left">发布进度</el-divider>
-    <el-steps :active="active" finish-status="success" align-center>
+    <el-divider content-position="left">
+      <span style="font-size: 12px;">发布进度</span>
+    </el-divider>
+    <el-steps :active="active" finish-status="success" align-center style="font-size: 12px;">
       <el-step title="准备环境"></el-step>
       <el-step title="从git克隆工程"></el-step>
       <el-step title="maven打包"></el-step>
@@ -25,7 +18,9 @@
       <el-step title="执行远程发布脚本"></el-step>
       <el-step title="发布收尾工作"></el-step>
     </el-steps>
-    <el-divider style="margin:10px 0;" content-position="left">发布日志</el-divider>
+    <el-divider content-position="left">
+      <span style="font-size: 12px;">发布日志</span>
+    </el-divider>
     <div class="publish_detail">
       <el-scrollbar style="height: 100%;" ref="el_scrollbar">
         <div
@@ -64,7 +59,7 @@ export default {
       scroll_top: 0,
       publish_style: {
         overflowY: "auto",
-        width: "1300px",
+        width: "99%",
         height: "550px"
       },
       active: -1,
@@ -201,8 +196,7 @@ export default {
       this.publish_style.height = `${document.documentElement.clientHeight -
         height_used -
         1}px`;
-      this.publish_style.width = `${document.documentElement.clientWidth *
-        0.95}px`;
+      this.publish_style.width = `${document.documentElement.clientWidth * 1 - 38}px`;
     }
   },
   mounted() {
@@ -230,5 +224,9 @@ export default {
 .publish {
   text-align: left;
   border: 1px solid lightgray;
+}
+>>> .el-step__title {
+  font-size: 12px;
+  line-height: 18px;
 }
 </style>

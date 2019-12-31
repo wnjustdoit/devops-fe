@@ -4,7 +4,7 @@
       ref="user"
       :model="user"
       :rules="rules"
-      label-position="left"
+      label-position="right"
       label-width="200px"
       v-loading="loading"
     >
@@ -23,7 +23,7 @@
       <el-form-item label="gitlab邮箱" prop="gitlab_email">
         <el-input v-model="user.gitlab_email" placeholder="eg: wn@company.com"></el-input>
       </el-form-item>
-      <el-form-item label="角色" prop="role">
+      <el-form-item label="角色" prop="role" style="text-align: left;">
         <el-select v-model="user.role" filterable placeholder="请选择">
           <el-option
             v-for="item in roles"
@@ -33,8 +33,8 @@
           ></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="onSubmit">立即创建</el-button>|
+      <el-form-item style="text-align: left;">
+        <el-button type="primary" @click="onSubmit">立即创建</el-button>
         <el-button @click="resetForm('ruleForm')">重置</el-button>
       </el-form-item>
     </el-form>
@@ -124,11 +124,5 @@ export default {
 };
 </script>
 <style scoped>
-.user {
-  width: 800px;
-  margin: auto;
-}
-.user .el-select {
-  width: 500px;
-}
+@import "../assets/common.css";
 </style>

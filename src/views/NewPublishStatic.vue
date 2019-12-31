@@ -4,7 +4,7 @@
       ref="publishment"
       :model="publishment"
       :rules="rules"
-      label-position="left"
+      label-position="right"
       label-width="200px"
       v-loading="loading"
     >
@@ -71,8 +71,8 @@
           placeholder="eg: /data/project/mama_[project_name]"
         ></el-input>
       </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="onSubmit">立即创建</el-button>|
+      <el-form-item style="text-align: left;">
+        <el-button type="primary" @click="onSubmit">立即创建</el-button>
         <el-button @click="resetForm('ruleForm')">重置</el-button>
       </el-form-item>
     </el-form>
@@ -87,9 +87,9 @@ export default {
         name: null,
         description: null,
         git_repo_id: null,
-        git_branches: null,
+        git_branches: [],
         source_file_dir: null,
-        to_ip: null,
+        to_ip: [],
         to_project_home: null
       },
       git_repo_options: [],
@@ -293,11 +293,5 @@ export default {
 };
 </script>
 <style scoped>
-.publish {
-  width: 800px;
-  margin: auto;
-}
-.publish .el-select {
-  width: 500px;
-}
+@import "../assets/common.css";
 </style>

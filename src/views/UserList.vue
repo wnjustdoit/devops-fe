@@ -1,6 +1,12 @@
 <template>
   <div class="userList" v-loading="loading">
-    <el-table :data="userList" border style="width: 100%">
+    <el-table
+      :data="userList"
+      border
+      style="width: 100%"
+      :cell-style="cellStyle"
+      :header-cell-style="headerCellStyle"
+    >
       <el-table-column prop="id" label="用户id"></el-table-column>
       <el-table-column prop="nick_name" label="用户昵称"></el-table-column>
       <el-table-column prop="login_code" label="登录名"></el-table-column>
@@ -19,17 +25,29 @@
       </el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button
-            type="info"
-            plain
-            circle
-            icon="el-icon-edit"
-            @click="toUpdate(scope.row.id)"
-          >修改(todo)</el-button>
-          <el-button type="danger" circle icon="el-icon-delete" @click="deleteItem(scope.row)">
-            <span v-if="scope.row.is_deleted == '0'">禁用</span>
-            <span v-else-if="scope.row.is_deleted == '1'">启用</span>
-          </el-button>
+          <div style="padding-top: 2px; padding-bottom: 2px;">
+            <el-button
+              type="info"
+              plain
+              round
+              size="mini"
+              icon="el-icon-edit"
+              @click="toUpdate(scope.row.id)"
+            >修改</el-button>
+            <br />
+            <el-button
+              style="margin-top: 3px;"
+              type="danger"
+              round
+              size="mini"
+              icon="el-icon-delete"
+              @click="deleteItem(scope.row)"
+              v-if="scope.row.login_code != 'admin'"
+            >
+              <span v-if="scope.row.is_deleted == '0'">禁用</span>
+              <span v-else-if="scope.row.is_deleted == '1'">启用</span>
+            </el-button>
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -46,6 +64,12 @@ export default {
     };
   },
   methods: {
+    cellStyle() {
+      return "text-align: center;";
+    },
+    headerCellStyle() {
+      return "text-align: center; background-color: lightgrey; height: 40px;";
+    },
     list_users() {
       http
         .get("/admin/user/list")
@@ -74,12 +98,16 @@ export default {
               data: { is_deleted: 1 - row.is_deleted }
             })
             .then(response => {
-              this.$message({
-                showClose: true,
-                message: keyword + "成功",
-                type: "success"
-              });
-              this.list_users();
+              if (response.data.status == "OK") {
+                this.$message({
+                  showClose: true,
+                  message: keyword + "成功",
+                  type: "success"
+                });
+                this.list_users();
+              } else {
+                this.$message.error("禁用失败");
+              }
             })
             .catch(error => {
               this.$message.error("禁用失败");

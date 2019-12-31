@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-divider style="margin:10px 0;" content-position="left">发布日志</el-divider>
+    <el-divider style="margin:10px 0;" content-position="left">发布日志详情：</el-divider>
     <div class="publish_detail">
       <el-scrollbar style="height: 100%;" ref="el_scrollbar">
         <div

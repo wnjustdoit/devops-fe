@@ -1,7 +1,8 @@
 <template>
   <div class="home">
-    welcome, {{nick_name}}
-    <a href="#" @click="user_logout" v-if="this.nick_name != '游客'">退出</a>
+    Welcome,
+    <span style="color: blue; font-weight: bold;">{{nick_name}}!</span>
+    <a href="#" class="logout" @click="user_logout" v-if="this.nick_name != '游客'">退出</a>
   </div>
 </template>
 
@@ -18,10 +19,14 @@ export default {
       http
         .get("/user/info")
         .then(response => {
-          if (response.data != null) {
+          this.$store.commit("setUser", response.data);
+          if (response.data && response.data.role) {
             this.nick_name = response.data.nick_name;
           } else {
-            this.$message.info({ message: "您尚未登录，正在跳转到登录页..", duration: 1000 });
+            this.$message.info({
+              message: "您尚未登录，正在跳转到登录页..",
+              duration: 1000
+            });
             var _this = this;
             setTimeout(function() {
               _this.$router.push({
@@ -41,13 +46,17 @@ export default {
       http
         .post("/user/logout")
         .then(response => {
-          this.$message.info({ message: "退出成功，页面正在跳转..", duration: 1000 });
-            var _this = this;
-            setTimeout(function() {
-              _this.$router.push({
-                path: "/userLogin"
-              });
-            }, 1000);
+          this.$store.commit("setUser", null);
+          this.$message.info({
+            message: "退出成功，页面正在跳转..",
+            duration: 1000
+          });
+          var _this = this;
+          setTimeout(function() {
+            _this.$router.push({
+              path: "/userLogin"
+            });
+          }, 1000);
         })
         .catch(error => {
           this.$message.error("退出失败");
@@ -62,3 +71,11 @@ export default {
   }
 };
 </script>
+<style scoped>
+.home {
+  padding-top: 10%;
+}
+.logout {
+  margin-left: 15px;
+}
+</style>

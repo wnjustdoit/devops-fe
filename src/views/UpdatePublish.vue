@@ -26,7 +26,7 @@
             :label="item.label"
             :value="item.value"
           ></el-option>
-        </el-select>*
+        </el-select>
       </el-form-item>
       <el-form-item label="git分支">
         <el-select
@@ -116,10 +116,10 @@
       <el-form-item label="发布完毕后打标签注释">
         <el-input v-model="publishment.git_tag_comment" placeholder="eg: 项目的第一个版本"></el-input>
       </el-form-item>
-      <el-form-item label="发布完毕后是否删除临时分支">
-        <el-checkbox v-model="publishment.git_delete_temp_branch">删除临时分支</el-checkbox>
+      <el-form-item label="发布完毕后是否删除临时分支" style="text-align: left;">
+        <el-switch v-model="publishment.git_delete_temp_branch"></el-switch>
       </el-form-item>
-      <el-form-item>
+      <el-form-item style="text-align: left;">
         <el-button type="primary" @click="onSubmit">修改</el-button>
       </el-form-item>
     </el-form>
@@ -371,8 +371,9 @@ export default {
 .publish {
   width: 800px;
   margin: auto;
+  padding-top: 15px;
 }
 .publish .el-select {
-  width: 500px;
+  width: 100%;
 }
 </style>

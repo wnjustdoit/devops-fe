@@ -4,16 +4,18 @@
       ref="publishment"
       :model="publishment"
       :rules="rules"
-      label-position="left"
+      label-position="right"
       label-width="200px"
       v-loading="loading"
     >
+      <el-divider><span style="color: lightgrey;">项目基本信息</span></el-divider>
       <el-form-item label="发布名称" prop="name">
         <el-input v-model="publishment.name" placeholder="eg: develop_youxuan_supplier_web"></el-input>
       </el-form-item>
       <el-form-item label="描述" prop="description">
         <el-input v-model="publishment.description" placeholder="eg: 妈妈优选供应商web端（线下环境）"></el-input>
       </el-form-item>
+      <el-divider><span style="color: lightgrey;">git相关信息</span></el-divider>
       <el-form-item label="git仓库地址" prop="git_repo_id">
         <el-select
           v-model="publishment.git_repo_id"
@@ -52,6 +54,7 @@
           ></el-option>
         </el-select>
       </el-form-item>
+      <el-divider><span style="color: lightgrey;">maven打包相关信息</span></el-divider>
       <el-form-item label="发布环境" prop="profile">
         <el-select v-model="publishment.profile" placeholder="请选择">
           <el-option
@@ -63,8 +66,9 @@
         </el-select>
       </el-form-item>
       <el-form-item label="发布文件位置（相对）" prop="source_file_dir">
-        <el-input v-model="publishment.source_file_dir" placeholder="eg: target"></el-input>
+        <el-input v-model="publishment.source_file_dir" placeholder="eg: target 或者 youxuan-web/target"></el-input>
       </el-form-item>
+      <el-divider><span style="color: lightgrey;">目标服务器信息</span></el-divider>
       <el-form-item label="目标服务器" prop="to_ip">
         <el-select
           v-model="publishment.to_ip"
@@ -102,6 +106,7 @@
           placeholder="eg: -Xms768m -Xmx768m 线下可配置区间值如：-Xms256m -Xmx1024m"
         ></el-input>
       </el-form-item>
+      <el-divider><span style="color: lightgrey;">发布完毕后git相关操作</span></el-divider>
       <el-form-item label="发布完毕合并到git分支" prop="git_merged_branch">
         <el-select
           v-model="publishment.git_merged_branch"
@@ -123,11 +128,11 @@
       <el-form-item label="发布完毕后打标签注释" prop="git_tag_comment">
         <el-input v-model="publishment.git_tag_comment" placeholder="eg: 项目的第一个版本"></el-input>
       </el-form-item>
-      <el-form-item label="发布完毕后是否删除临时分支" prop="git_delete_temp_branch">
-        <el-checkbox v-model="publishment.git_delete_temp_branch">删除临时分支</el-checkbox>
+      <el-form-item label="发布完毕后是否删除临时分支" prop="git_delete_temp_branch" style="text-align: left;">
+        <el-switch v-model="publishment.git_delete_temp_branch"></el-switch>
       </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="onSubmit">立即创建</el-button>|
+      <el-form-item style="text-align: left;">
+        <el-button type="primary" @click="onSubmit">立即创建</el-button>
         <el-button @click="resetForm('ruleForm')">重置</el-button>
       </el-form-item>
     </el-form>
@@ -143,10 +148,10 @@ export default {
         description: null,
         git_repo_id: null,
         git_branch_type: "branches",
-        git_branches: null,
+        git_branches: [],
         profile: null,
-        source_file_dir: "target",
-        to_ip: null,
+        source_file_dir: null,
+        to_ip: [],
         to_project_home: null,
         to_process_name: null,
         to_java_opts: null,
@@ -361,9 +366,9 @@ export default {
     onSubmit() {
       this.$refs["publishment"].validate(valid => {
         if (valid) {
-          // console.log("submit!");
+          console.log("submit!");
         } else {
-          // console.log("error submit!!");
+          console.log("error submit!!");
           return false;
         }
       });
@@ -395,11 +400,5 @@ export default {
 };
 </script>
 <style scoped>
-.publish {
-  width: 800px;
-  margin: auto;
-}
-.publish .el-select {
-  width: 500px;
-}
+@import "../assets/common.css";
 </style>
