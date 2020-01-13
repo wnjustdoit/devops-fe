@@ -3,8 +3,8 @@
     <div style="margin-top: 5px; text-align: right; font-size: 12px; margin-right: 15px;">
       <span v-if="$socket.connected" style="color: blue;">Socket connected</span>
       <span v-if="$socket.disconnected" style="color: red;">Socket disconnected</span>
-      <el-divider direction="vertical"></el-divider>
-      自动滚动日志：<el-switch v-if="$socket.connected" v-model="scroll_switch" @change="scroll_publish"></el-switch>
+      <el-divider direction="vertical"></el-divider>自动滚动日志：
+      <el-switch v-if="$socket.connected" v-model="scroll_switch" @change="scroll_publish"></el-switch>
     </div>
     <el-divider content-position="left">
       <span style="font-size: 12px;">发布进度</span>
@@ -112,7 +112,7 @@ export default {
       }
       // 当首次cookie为空时，写完cookie后重连websocket（其他改进策略：换原生websocket，更好的掌控整个websocket生命周期）
       // 终极改进：TODO 用户登录后，直接用会话的cookie标识
-      var reconnect = this.getCookie("publish_client_id") == "";
+      var reconnect = true;//this.getCookie("publish_client_id") == "";
       await http
         .post("/publish", { id: this.$route.query.id })
         .then(response => {
@@ -122,7 +122,7 @@ export default {
             type: "success"
           });
           if (reconnect) {
-            this.$socket.client.disconnect();
+            // this.$socket.client.disconnect();
             this.$socket.client.connect();
           }
         })
@@ -160,7 +160,8 @@ export default {
                 "i",
                 { style: "color: green" },
                 data.project + "发布结束，详情请查看发布日志"
-              )
+              ),
+              duration: 0
             });
           }
         }
@@ -196,13 +197,11 @@ export default {
       this.publish_style.height = `${document.documentElement.clientHeight -
         height_used -
         1}px`;
-      this.publish_style.width = `${document.documentElement.clientWidth * 1 - 38}px`;
+      this.publish_style.width = `${document.documentElement.clientWidth * 1 -
+        38}px`;
     }
   },
   mounted() {
-    // document.getElementById("backend").className =
-    //   document.getElementById("backend").className + " el-menu-item is-active";
-
     // 自适应窗口
     this.resize_div();
     window.onresize = this.resize_div;

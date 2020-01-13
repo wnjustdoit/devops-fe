@@ -24,6 +24,8 @@
       max-height="580"
       style="width: 100%; margin-top: 7px;"
       @row-dblclick="doubleClickRow"
+      :cell-style="cellStyle"
+      :header-cell-style="headerCellStyle"
     >
       <el-table-column type="expand">
         <template slot="header">
@@ -77,15 +79,12 @@
         </template>
       </el-table-column>
       <el-table-column width="45" prop="id" label="id"></el-table-column>
-      <el-table-column sortable prop="description" label="description"></el-table-column>
-      <el-table-column sortable prop="path" label="path"></el-table-column>
       <el-table-column sortable prop="path_with_namespace" label="path_with_namespace"></el-table-column>
-      <el-table-column prop="ssh_url_to_repo" label="ssh_url_to_repo"></el-table-column>
-      <el-table-column prop="http_url_to_repo" label="http_url_to_repo"></el-table-column>
+      <el-table-column sortable prop="description" label="description"></el-table-column>
       <el-table-column prop="web_url" label="web_url"></el-table-column>
-      <el-table-column prop="created_at" label="创建时间"></el-table-column>
-      <el-table-column prop="last_updated_at" label="最后更新时间"></el-table-column>
-      <el-table-column label="操作">
+      <el-table-column width="155" prop="created_at" label="创建时间"></el-table-column>
+      <el-table-column width="155" prop="last_updated_at" label="最后更新时间"></el-table-column>
+      <el-table-column width="95" label="操作">
         <template slot-scope="scope">
           <el-button
             type="danger"
@@ -123,6 +122,7 @@
 
 <script>
 import http from "../util/http.js";
+import { cellStyle as cs, headerCellStyle as hcs } from "../assets/common.js";
 export default {
   data() {
     return {
@@ -136,6 +136,12 @@ export default {
     };
   },
   methods: {
+    cellStyle() {
+      return cs();
+    },
+    headerCellStyle() {
+      return hcs();
+    },
     doubleClickRow(row, column, event) {
       this.$refs.dataTable.toggleRowExpansion(row);
     },
@@ -274,26 +280,6 @@ export default {
   }
 };
 </script>
-<style>
-.gitRepoList {
-  margin: auto;
-  margin-top: 10px;
-  width: 100%;
-  padding-top: 1px;
-}
-.gitRepoList td {
-  width: 100px;
-}
-.table-expand {
-  font-size: 0;
-}
-.table-expand label {
-  width: 150px;
-  color: #99a9bf;
-}
-.table-expand .el-form-item {
-  margin-right: 0;
-  margin-bottom: 0;
-  width: 50%;
-}
+<style scoped>
+@import "../assets/common.css";
 </style>

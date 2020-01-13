@@ -17,7 +17,7 @@
       :cell-style="cellStyle"
       :header-cell-style="headerCellStyle"
     >
-      <el-table-column prop="id" label="发布系统id"></el-table-column>
+      <el-table-column width="65" prop="id" label="发布id"></el-table-column>
       <el-table-column prop="name" label="名称"></el-table-column>
       <el-table-column prop="description" label="描述"></el-table-column>
       <el-table-column prop="git_repo_id" label="git仓库id"></el-table-column>
@@ -26,21 +26,11 @@
       <el-table-column prop="source_file_dir" label="发布文件位置"></el-table-column>
       <el-table-column prop="to_ip" label="目标服务器ip"></el-table-column>
       <el-table-column prop="to_project_home" label="目标服务器项目主目录"></el-table-column>
-      <el-table-column label="操作">
+      <el-table-column width="90" label="操作">
         <template slot-scope="scope">
           <div style="padding-top: 2px; padding-bottom: 2px;">
             <el-button
               type="primary"
-              round
-              size="mini"
-              icon="el-icon-s-promotion"
-              @click="toPublish(scope.row.id)"
-            >发布</el-button>
-            <br />
-            <el-button
-              style="margin-top: 3px;"
-              type="info"
-              plain
               round
               size="mini"
               icon="el-icon-edit"
@@ -56,6 +46,17 @@
               @click="deleteItem(scope.row.id)"
             >删除</el-button>
           </div>
+        </template>
+      </el-table-column>
+      <el-table-column label="发布操作">
+        <template slot-scope="scope">
+          <el-button
+              type="primary"
+              round
+              size="mini"
+              icon="el-icon-s-promotion"
+              @click="toPublish(scope.row.id)"
+            >发布</el-button>
         </template>
       </el-table-column>
     </el-table>

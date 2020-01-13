@@ -1,14 +1,11 @@
 <template>
   <div>
-    <el-divider style="margin:10px 0;" content-position="left">发布日志详情：</el-divider>
+    <el-divider style="margin:10px 0;" content-position="left">
+      <span style="font-size: 12px;">发布日志详情：</span>
+    </el-divider>
     <div class="publish_detail">
       <el-scrollbar style="height: 100%;" ref="el_scrollbar">
-        <div
-          class="publish"
-          ref="log_output"
-          v-html="log_output"
-          :style="publish_style"
-        ></div>
+        <div class="publish" ref="log_output" v-html="log_output" :style="publish_style"></div>
       </el-scrollbar>
       <el-backtop target=".publish" :bottom="100">
         <div
@@ -38,7 +35,7 @@ export default {
         overflowY: "auto",
         width: "1300px",
         height: "550px"
-      },
+      }
     };
   },
   methods: {
@@ -50,7 +47,7 @@ export default {
         });
         return;
       }
-      
+
       http
         .get("/publishmentLog/" + this.$route.query.id)
         .then(response => {
@@ -59,8 +56,21 @@ export default {
         .catch(error => {
           this.$message.error("查询失败");
         });
-
+    },
+    resize_div() {
+      // console.log('================' + document.documentElement.clientHeight + ', ' + document.documentElement.clientWidth);
+      var height_used = this.$refs.log_output.getBoundingClientRect().top;
+      this.publish_style.height = `${document.documentElement.clientHeight -
+        height_used -
+        1}px`;
+      this.publish_style.width = `${document.documentElement.clientWidth * 1 -
+        38}px`;
     }
+  },
+  mounted() {
+    // 自适应窗口
+    this.resize_div();
+    window.onresize = this.resize_div;
   },
   created() {
     this.publish_init();

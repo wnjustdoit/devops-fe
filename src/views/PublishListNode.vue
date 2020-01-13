@@ -17,7 +17,7 @@
       :cell-style="cellStyle"
       :header-cell-style="headerCellStyle"
     >
-      <el-table-column prop="id" label="发布系统id"></el-table-column>
+      <el-table-column width="65" prop="id" label="发布id"></el-table-column>
       <el-table-column prop="name" label="名称"></el-table-column>
       <el-table-column prop="description" label="描述"></el-table-column>
       <el-table-column prop="git_repo_id" label="git仓库id"></el-table-column>

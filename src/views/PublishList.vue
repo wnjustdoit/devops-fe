@@ -1,14 +1,10 @@
 <template>
   <div class="publishList" v-loading="loading">
-    <div style="justify-content: center; margin-bottom: 10px; width: 100%; display: flex;">
+    <div style="margin-bottom: 10px; width: 100%;">
       <el-input placeholder="请输入关键词" v-model="keyword" clearable size="small" style="width: 300px;">
         <i slot="prefix" class="el-input__icon el-icon-search"></i>
       </el-input>
-      <el-button
-        type="primary"
-        size="small"
-        @click="search_projects_publishment()"
-      >搜索</el-button>
+      <el-button type="primary" size="small" @click="search_projects_publishment()">搜索</el-button>
       <el-button
         type="text"
         size="mini"
@@ -16,6 +12,13 @@
         style="margin-left: 120px;"
         @click="$router.push({path: '/newPublish'});"
       >新建发布</el-button>
+      <el-button
+        style="margin-left: 30px; "
+        type="text"
+        plain
+        size="mini"
+        @click="list_projects_health_status()"
+      >查看健康状态</el-button>
     </div>
     <el-table
       :data="publishList"
@@ -73,7 +76,7 @@
               <span>{{ props.row.git_tag_comment }}</span>
             </el-form-item>
             <el-form-item label="是否删除临时分支">
-              <span>{{ props.row.git_delete_temp_branch }}</span>
+              <span>{{ props.row.git_delete_temp_branch == 1 ? '删除' : '' }}</span>
             </el-form-item>
             <el-form-item label="创建时间">
               <span>{{ props.row.created_at }}</span>
@@ -88,7 +91,7 @@
               <span>{{ props.row.last_updated_by }}</span>
             </el-form-item>
             <el-form-item label="是否删除">
-              <span>{{ props.row.is_deleted }}</span>
+              <span>{{ props.row.is_deleted == 0 ? '正常' : '删除' }}</span>
             </el-form-item>
           </el-form>
         </template>
@@ -100,7 +103,7 @@
       <el-table-column prop="git_branches" label="git发布分支"></el-table-column>
       <el-table-column prop="profile" label="maven打包环境"></el-table-column>
       <el-table-column prop="to_ip" label="目标服务器ip"></el-table-column>
-      <el-table-column width="90" label="操作">
+      <el-table-column width="95" label="操作">
         <template slot-scope="scope">
           <div style="padding-top: 2px; padding-bottom: 2px;">
             <el-button
@@ -122,10 +125,16 @@
           </div>
         </template>
       </el-table-column>
+      <el-table-column width="80" label="健康状态" v-if="showHealthStatus == true">
+        <template slot-scope="scope">
+          <span v-if="scope.row.health_status && scope.row.health_status != ''" class="el-icon-sunny"></span>
+          <span v-else-if="scope.row.health_status !== undefined && scope.row.health_status == ''" class="el-icon-moon-night"></span>
+        </template>
+      </el-table-column>
       <el-table-column label="发布操作">
         <template slot-scope="scope">
           <el-dropdown split-button type="primary" size="small" @click="toPublish(scope.row.id)">
-            <span class="el-icon-s-promotion">发布</span>
+            <span class="el-icon-s-promotion">&nbsp;发布</span>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item style="padding: 0 1px 2px 1px; text-align: center">
                 <el-button
@@ -133,7 +142,7 @@
                   plain
                   size="mini"
                   icon="el-icon-close"
-                  @click="shutdown(scope.row.id)"
+                  @click="shutdown(scope.row, scope.$index)"
                 >停机</el-button>
               </el-dropdown-item>
               <el-dropdown-item style="padding: 2px 1px 0 1px; text-align: center">
@@ -142,7 +151,7 @@
                   plain
                   size="mini"
                   icon="el-icon-refresh"
-                  @click="reboot(scope.row.id)"
+                  @click="reboot(scope.row, scope.$index)"
                 >重启</el-button>
               </el-dropdown-item>
             </el-dropdown-menu>
@@ -177,7 +186,8 @@ export default {
       currentPage: 1,
       pageSize: 10,
       keyword: null,
-      loading: false
+      loading: false,
+      showHealthStatus: false
     };
   },
   methods: {
@@ -253,54 +263,136 @@ export default {
         }
       });
     },
-    shutdown(id) {
+    shutdown(row, index) {
       this.$confirm("确认停机？")
         .then(_ => {
+          this.$message({
+            showClose: true,
+            message: "正在停机，请稍等..."
+          });
           http
-            .post("/publish/shutdown/" + id)
+            .post("/publish/shutdown/" + row.id)
             .then(response => {
               if (response.data.status == "OK") {
-                this.$message({
-                  showClose: true,
-                  message: "停机成功",
-                  type: "success"
+                const h = this.$createElement;
+                this.$notify({
+                  title: "停机状态",
+                  message: h(
+                    "i",
+                    { style: "color: green" },
+                    row.name + "停机成功"
+                  ),
+                  type: "success",
+                  duration: 0
                 });
-                this.search_projects_publishment();
               } else {
-                this.$message.error("停机失败");
+                this.$notify.error({
+                  title: "停机状态",
+                  message: h(
+                    "i",
+                    { style: "color: red" },
+                    row.name + "停机失败，请检查异常"
+                  ),
+                  duration: 0
+                });
               }
+              this.list_project_health_status(row, index);
             })
             .catch(error => {
-              this.$message.error("停机失败");
+              const h = this.$createElement;
+              this.$notify({
+                title: "停机状态",
+                message: h(
+                  "i",
+                  { style: "color: red" },
+                  row.name + "停机发生异常，详情请查看相关日志"
+                ),
+                type: "warning",
+                duration: 0
+              });
             });
         })
         .catch(_ => {
           this.$message("已取消");
         });
     },
-    reboot(id) {
+    reboot(row, index) {
       this.$confirm("确认重启？")
         .then(_ => {
+          this.$message({
+            showClose: true,
+            message: "正在重启，请稍等..."
+          });
           http
-            .post("/publish/reboot/" + id)
+            .post("/publish/reboot/" + row.id)
             .then(response => {
               if (response.data.status == "OK") {
-                this.$message({
-                  showClose: true,
-                  message: "重启成功",
-                  type: "success"
+                const h = this.$createElement;
+                this.$notify({
+                  title: "重启状态",
+                  message: h(
+                    "i",
+                    { style: "color: green" },
+                    row.name + "重启成功，详情请查看相关日志"
+                  ),
+                  type: "success",
+                  duration: 0
                 });
-                this.search_projects_publishment();
               } else {
-                this.$message.error("重启失败");
+                const h = this.$createElement;
+                this.$notify.error({
+                  title: "重启状态",
+                  message: h(
+                    "i",
+                    { style: "color: red" },
+                    row.name + "重启失败，详情请查看重启日志"
+                  ),
+                  duration: 0
+                });
               }
+              this.list_project_health_status(row, index);
             })
             .catch(error => {
-              this.$message.error("重启失败");
+              const h = this.$createElement;
+              this.$notify({
+                title: "重启状态",
+                message: h(
+                  "i",
+                  { style: "color: red" },
+                  row.name + " 重启发生异常，详情请查看相关日志"
+                ),
+                type: "warning",
+                duration: 0
+              });
             });
         })
         .catch(_ => {
           this.$message("已取消");
+        });
+    },
+    list_projects_health_status() {
+      this.showHealthStatus = true;
+      this.publishList.forEach(publish => {
+        http
+          .get("/publish/status/" + publish.id)
+          .then(response => {
+            publish.id = publish.id + "";
+            publish.health_status = response.data.process_id;
+          })
+          .catch(error => {
+            this.$message.error("查询失败");
+          });
+      });
+    },
+    list_project_health_status(row, index) {
+      http
+        .get("/publish/status/" + row.id)
+        .then(response => {
+          row.health_status = response.data.process_id;
+          this.$set(this.publishList, index, row);
+        })
+        .catch(error => {
+          this.$message.error("查询失败");
         });
     }
   },

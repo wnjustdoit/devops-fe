@@ -86,7 +86,7 @@ export default {
       }
       // 当首次cookie为空时，写完cookie后重连websocket（其他改进策略：换原生websocket，更好的掌控整个websocket生命周期）
       // 终极改进：TODO 用户登录后，直接用会话的cookie标识
-      var reconnect = this.getCookie("publish_client_id") == "";
+      var reconnect = true;//this.getCookie("publish_client_id") == "";
       await http
         .post("/publishStatic", { id: this.$route.query.id })
         .then(response => {
@@ -96,7 +96,7 @@ export default {
             type: "success"
           });
           if (reconnect) {
-            this.$socket.client.disconnect();
+            // this.$socket.client.disconnect();
             this.$socket.client.connect();
           }
         })
