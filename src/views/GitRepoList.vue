@@ -17,112 +17,114 @@
         @click="list_projects_web_hooks()"
       >Web Hook 管理</el-button>
     </div>
-    <el-table
-      ref="dataTable"
-      :data="gitRepoList"
-      border
-      max-height="580"
-      style="width: 100%; margin-top: 7px;"
-      @row-dblclick="doubleClickRow"
-      :cell-style="cellStyle"
-      :header-cell-style="headerCellStyle"
-    >
-      <el-table-column type="expand">
-        <template slot="header">
-          <el-button type="text" icon="el-icon-more"></el-button>
-        </template>
-        <template slot-scope="props">
-          <el-form label-position="left" inline class="table-expand">
-            <el-form-item label="id">
-              <span>{{ props.row.id }}</span>
-            </el-form-item>
-            <el-form-item label="name">
-              <span>{{ props.row.name }}</span>
-            </el-form-item>
-            <el-form-item label="description">
-              <span>{{ props.row.description }}</span>
-            </el-form-item>
-            <el-form-item label="name_with_namespace">
-              <span>{{ props.row.name_with_namespace }}</span>
-            </el-form-item>
-            <el-form-item label="path">
-              <span>{{ props.row.path }}</span>
-            </el-form-item>
-            <el-form-item label="path_with_namespace">
-              <span>{{ props.row.path_with_namespace }}</span>
-            </el-form-item>
-            <el-form-item label="ssh_url_to_repo">
-              <span>{{ props.row.ssh_url_to_repo }}</span>
-            </el-form-item>
-            <el-form-item label="http_url_to_repo">
-              <span>{{ props.row.http_url_to_repo }}</span>
-            </el-form-item>
-            <el-form-item label="web_url">
-              <span>{{ props.row.web_url }}</span>
-            </el-form-item>
-            <el-form-item label="created_at">
-              <span>{{ props.row.created_at }}</span>
-            </el-form-item>
-            <el-form-item label="created_by">
-              <span>{{ props.row.created_by }}</span>
-            </el-form-item>
-            <el-form-item label="last_updated_at">
-              <span>{{ props.row.last_updated_at }}</span>
-            </el-form-item>
-            <el-form-item label="last_updated_by">
-              <span>{{ props.row.last_updated_by }}</span>
-            </el-form-item>
-            <el-form-item label="web_hooks">
-              <span>{{ props.row.web_hooks }}</span>
-            </el-form-item>
-          </el-form>
-        </template>
-      </el-table-column>
-      <el-table-column width="45" prop="id" label="id"></el-table-column>
-      <el-table-column sortable prop="path_with_namespace" label="path_with_namespace"></el-table-column>
-      <el-table-column sortable prop="description" label="description"></el-table-column>
-      <el-table-column prop="web_url" label="web_url"></el-table-column>
-      <el-table-column width="155" prop="created_at" label="创建时间"></el-table-column>
-      <el-table-column width="155" prop="last_updated_at" label="最后更新时间"></el-table-column>
-      <el-table-column width="95" label="操作">
-        <template slot-scope="scope">
-          <el-button
-            type="danger"
-            round
-            size="mini"
-            icon="el-icon-delete"
-            @click="deleteItem(scope.row.id)"
-          >删除</el-button>
-        </template>
-      </el-table-column>
-      <el-table-column sortable prop="web_hooks" label="Web Hooks" v-if="showWebHook == true"></el-table-column>
-      <el-table-column width="120" label="Web Hook操作" v-if="showWebHook == true">
-        <template slot-scope="scope">
-          <el-button
-            type="text"
-            plain
-            round
-            size="mini"
-            @click="add_gitlab_web_hook(scope.row, scope.$index)"
-            v-if="scope.row.web_hooks == '[]'"
-          >添加Web Hook</el-button>
-          <el-button
-            type="text"
-            style="color: red;"
-            round
-            size="mini"
-            @click="delete_gitlab_web_hook(scope.row, scope.$index)"
-            v-if="scope.row.web_hooks != '[]'"
-          >删除Web Hook</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <div style="text-align: left;">
+      <el-table
+        ref="dataTable"
+        :data="gitRepoList"
+        border
+        max-height="580"
+        style="width: 100%; margin-top: 7px;"
+        @row-dblclick="doubleClickRow"
+        :cell-style="cellStyle"
+        :header-cell-style="headerCellStyle"
+      >
+        <el-table-column type="expand">
+          <template slot="header">
+            <el-button type="text" icon="el-icon-more"></el-button>
+          </template>
+          <template slot-scope="props">
+            <el-form label-position="left" inline class="table-expand">
+              <el-form-item label="id">
+                <span>{{ props.row.id }}</span>
+              </el-form-item>
+              <el-form-item label="name">
+                <span>{{ props.row.name }}</span>
+              </el-form-item>
+              <el-form-item label="description">
+                <span>{{ props.row.description }}</span>
+              </el-form-item>
+              <el-form-item label="name_with_namespace">
+                <span>{{ props.row.name_with_namespace }}</span>
+              </el-form-item>
+              <el-form-item label="path">
+                <span>{{ props.row.path }}</span>
+              </el-form-item>
+              <el-form-item label="path_with_namespace">
+                <span>{{ props.row.path_with_namespace }}</span>
+              </el-form-item>
+              <el-form-item label="ssh_url_to_repo">
+                <span>{{ props.row.ssh_url_to_repo }}</span>
+              </el-form-item>
+              <el-form-item label="http_url_to_repo">
+                <span>{{ props.row.http_url_to_repo }}</span>
+              </el-form-item>
+              <el-form-item label="web_url">
+                <span>{{ props.row.web_url }}</span>
+              </el-form-item>
+              <!-- <el-form-item label="created_at">
+                <span>{{ props.row.created_at }}</span>
+              </el-form-item>
+              <el-form-item label="created_by">
+                <span>{{ props.row.created_by }}</span>
+              </el-form-item>
+              <el-form-item label="last_updated_at">
+                <span>{{ props.row.last_updated_at }}</span>
+              </el-form-item>
+              <el-form-item label="last_updated_by">
+                <span>{{ props.row.last_updated_by }}</span>
+              </el-form-item> -->
+              <el-form-item label="web_hooks">
+                <span>{{ props.row.web_hooks }}</span>
+              </el-form-item>
+            </el-form>
+          </template>
+        </el-table-column>
+        <el-table-column width="45" prop="id" label="id"></el-table-column>
+        <el-table-column sortable prop="path_with_namespace" label="path_with_namespace"></el-table-column>
+        <el-table-column sortable prop="description" label="description"></el-table-column>
+        <el-table-column prop="web_url" label="web_url"></el-table-column>
+        <!-- <el-table-column width="155" prop="created_at" label="创建时间"></el-table-column>
+        <el-table-column width="155" prop="last_updated_at" label="最后更新时间"></el-table-column> -->
+        <el-table-column width="95" label="操作">
+          <template slot-scope="scope">
+            <el-button
+              type="danger"
+              round
+              size="mini"
+              icon="el-icon-delete"
+              @click="deleteItem(scope.row.id)"
+            >删除</el-button>
+          </template>
+        </el-table-column>
+        <el-table-column sortable prop="web_hooks" label="Web Hooks" v-if="showWebHook == true"></el-table-column>
+        <el-table-column width="120" label="Web Hook操作" v-if="showWebHook == true">
+          <template slot-scope="scope">
+            <el-button
+              type="text"
+              plain
+              round
+              size="mini"
+              @click="add_gitlab_web_hook(scope.row, scope.$index)"
+              v-if="scope.row.web_hooks == '[]'"
+            >添加Web Hook</el-button>
+            <el-button
+              type="text"
+              style="color: red;"
+              round
+              size="mini"
+              @click="delete_gitlab_web_hook(scope.row, scope.$index)"
+              v-if="scope.row.web_hooks != '[]'"
+            >删除Web Hook</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
   </div>
 </template>
 
 <script>
 import http from "../util/http.js";
-import { cellStyle as cs, headerCellStyle as hcs } from "../assets/common.js";
+import { cellStyleLeft as cs, headerCellStyle as hcs } from "../assets/common.js";
 export default {
   data() {
     return {

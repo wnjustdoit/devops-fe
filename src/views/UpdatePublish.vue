@@ -1,133 +1,144 @@
 <template>
-  <div class="publish">
-    <!-- <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item>后端发布</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ path: '/publishList' }">发布列表</el-breadcrumb-item>
-      <el-breadcrumb-item>更新发布</el-breadcrumb-item>
-    </el-breadcrumb>-->
-    <el-form ref="form" :model="publishment" :rules="rules" label-width="200px" v-loading="loading">
-      <el-form-item label="发布名称">
-        <el-input v-model="publishment.name" placeholder="eg: develop_youxuan_supplier_web"></el-input>
-      </el-form-item>
-      <el-form-item label="描述">
-        <el-input v-model="publishment.description" placeholder="eg: 妈妈优选供应商web端（线下环境）"></el-input>
-      </el-form-item>
-      <el-form-item label="git仓库地址">
-        <el-select
-          v-model="publishment.git_repo_id"
-          filterable
-          placeholder="请选择"
-          @click="list_git_repos()"
-          @change="resetBranch()"
-        >
-          <el-option
-            v-for="item in git_repo_options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          ></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="git分支">
-        <el-select
-          v-model="publishment.git_branches"
-          multiple
-          filterable
-          allow-create
-          placeholder="请选择（支持多选）"
-          @focus="get_git_repo_branches()"
-        >
-          <el-option
-            v-for="item in git_branch_options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          ></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="发布环境">
-        <el-select v-model="publishment.profile" placeholder="请选择">
-          <el-option
-            v-for="item in profile_options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          ></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="发布文件位置（相对）" prop="source_file_dir">
-        <el-input v-model="publishment.source_file_dir" placeholder="eg: target"></el-input>
-      </el-form-item>
-      <el-form-item label="目标服务器">
-        <el-select
-          v-model="publishment.to_ip"
-          multiple
-          filterable
-          allow-create
-          placeholder="请选择或输入（暂时单项）"
-          @focus="change_ip_group()"
-        >
-          <el-option-group v-for="group in to_ip_options" :key="group.label" :label="group.label">
+  <div>
+    <div style="margin-top: 10px;">
+      <el-breadcrumb separator-class="el-icon-arrow-right">
+        <el-breadcrumb-item>后端发布</el-breadcrumb-item>
+        <el-breadcrumb-item :to="{ path: '/publishList' }">发布列表</el-breadcrumb-item>
+        <el-breadcrumb-item>更新发布</el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
+    <div class="publish">
+      <el-form
+        ref="form"
+        :model="publishment"
+        :rules="rules"
+        label-width="200px"
+        v-loading="loading"
+      >
+        <el-form-item label="发布名称">
+          <el-input v-model="publishment.name" placeholder="eg: develop_youxuan_supplier_web"></el-input>
+        </el-form-item>
+        <el-form-item label="描述">
+          <el-input v-model="publishment.description" placeholder="eg: 妈妈优选供应商web端（线下环境）"></el-input>
+        </el-form-item>
+        <el-form-item label="git仓库地址">
+          <el-select
+            v-model="publishment.git_repo_id"
+            filterable
+            placeholder="请选择"
+            @click="list_git_repos()"
+            @change="resetBranch()"
+          >
             <el-option
-              v-for="item in group.options"
+              v-for="item in git_repo_options"
               :key="item.value"
               :label="item.label"
               :value="item.value"
             ></el-option>
-          </el-option-group>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="目标服务器项目目录">
-        <el-input
-          v-model="publishment.to_project_home"
-          placeholder="eg: /data/project/mama_[project_name]"
-        ></el-input>
-      </el-form-item>
-      <el-form-item label="目标服务器进程名关键词">
-        <el-input
-          v-model="publishment.to_process_name"
-          placeholder="eg: xiaodian-usercenter(-1.0.0-SNAPSHOT.jar) 杀死进程和发布时版本通常省略"
-        ></el-input>
-      </el-form-item>
-      <el-form-item label="java变量">
-        <el-input
-          v-model="publishment.to_java_opts"
-          placeholder="eg: -Xms768m -Xmx768m 线下可配置区间值如：-Xms256m -Xmx1024m"
-        ></el-input>
-      </el-form-item>
-      <el-form-item label="发布完毕合并到git分支">
-        <el-select
-          v-model="publishment.git_merged_branch"
-          clearable
-          placeholder="请选择"
-          @click="get_git_repo_branches()"
-        >
-          <el-option
-            v-for="item in git_branch_options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          ></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="发布完毕后打标签名">
-        <el-input v-model="publishment.git_tag_version" placeholder="eg: v1.0.0"></el-input>
-      </el-form-item>
-      <el-form-item label="发布完毕后打标签注释">
-        <el-input v-model="publishment.git_tag_comment" placeholder="eg: 项目的第一个版本"></el-input>
-      </el-form-item>
-      <el-form-item label="发布完毕后是否删除临时分支" style="text-align: left;">
-        <el-switch v-model="publishment.git_delete_temp_branch"></el-switch>
-      </el-form-item>
-      <el-form-item style="text-align: left;">
-        <el-button type="primary" @click="onSubmit">修改</el-button>
-      </el-form-item>
-    </el-form>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="git分支">
+          <el-select
+            v-model="publishment.git_branches"
+            multiple
+            filterable
+            allow-create
+            placeholder="请选择（支持多选）"
+            @focus="get_git_repo_branches()"
+          >
+            <el-option
+              v-for="item in git_branch_options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="发布环境">
+          <el-select v-model="publishment.profile" placeholder="请选择">
+            <el-option
+              v-for="item in profile_options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="发布文件位置（相对）" prop="source_file_dir">
+          <el-input v-model="publishment.source_file_dir" placeholder="eg: target"></el-input>
+        </el-form-item>
+        <el-form-item label="目标服务器">
+          <el-select
+            v-model="publishment.to_ip"
+            multiple
+            filterable
+            allow-create
+            placeholder="请选择或输入（暂时单项）"
+            @focus="change_ip_group()"
+          >
+            <el-option-group v-for="group in to_ip_options" :key="group.label" :label="group.label">
+              <el-option
+                v-for="item in group.options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              ></el-option>
+            </el-option-group>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="目标服务器项目目录">
+          <el-input
+            v-model="publishment.to_project_home"
+            placeholder="eg: /data/project/mama_[project_name]"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="目标服务器进程名关键词">
+          <el-input
+            v-model="publishment.to_process_name"
+            placeholder="eg: xiaodian-usercenter(-1.0.0-SNAPSHOT.jar) 杀死进程和发布时版本通常省略"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="java变量">
+          <el-input
+            v-model="publishment.to_java_opts"
+            placeholder="eg: -Xms768m -Xmx768m 线下可配置区间值如：-Xms256m -Xmx1024m"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="发布完毕合并到git分支">
+          <el-select
+            v-model="publishment.git_merged_branch"
+            clearable
+            placeholder="请选择"
+            @click="get_git_repo_branches()"
+          >
+            <el-option
+              v-for="item in git_branch_options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="发布完毕后打标签名">
+          <el-input v-model="publishment.git_tag_version" placeholder="eg: v1.0.0"></el-input>
+        </el-form-item>
+        <el-form-item label="发布完毕后打标签注释">
+          <el-input v-model="publishment.git_tag_comment" placeholder="eg: 项目的第一个版本"></el-input>
+        </el-form-item>
+        <el-form-item label="发布完毕后是否删除临时分支" style="text-align: left;">
+          <el-switch v-model="publishment.git_delete_temp_branch"></el-switch>
+        </el-form-item>
+        <el-form-item style="text-align: left;">
+          <el-button type="primary" @click="onSubmit">修改</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
   </div>
 </template>
 <script>
 import http from "../util/http.js";
 import { async } from "q";
+import { sleep } from "../util/utils.js"
 export default {
   data() {
     return {
@@ -325,9 +336,6 @@ export default {
       //   this.to_ip_options.push(this._to_ip_options[2]);
       // }
     },
-    sleep(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    },
     resetBranch() {
       this.publishment.git_branches = null;
       this.publishment.git_merged_branch = null;
@@ -346,10 +354,9 @@ export default {
             message: "修改成功",
             type: "success"
           });
-          // this.sleep(1200).then(() => {
-          //   this.$router.go(0);
-          // });
-          this.get_publishment();
+          this.sleep(800).then(() => {
+            this.$router.push({path: '/PublishList'});
+          });
         })
         .catch(error => {
           console.log(error);

@@ -14,7 +14,7 @@
       <el-menu-item index="/gitRepoList">
         <router-link to="/gitRepoList">GitLab项目列表</router-link>
       </el-menu-item>
-      <el-submenu index="backend" id="backend" v-if="$store.state.user_role == 'backend' || $store.state.user_role == 'devops'">
+      <el-submenu index="backend" id="backend">
         <template slot="title">后端发布</template>
         <el-menu-item index="/newPublish">
           <router-link to="/newPublish">新建发布</router-link>
@@ -81,6 +81,11 @@ export default {
       this.activeIndex = this.$route.path;
     },
     init_menu() {
+      // 临时重定向到后端发布列表
+      this.$router.push({
+                path: "/publishList"
+              });
+      return;
       http
         .get("/user/info")
         .then(response => {

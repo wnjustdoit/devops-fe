@@ -39,15 +39,18 @@ npm run lint
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ### TODOs
+* 变量拷贝/复制；
+* 全局请求loading（组件化）、全局的会话判断（拦截器）；
+* 基础：样式（长期）& （vuejs & element）；
+* vue事件先后顺序（onfocus & onchange）；
+* 防止客户端重复点击（客户端解决方案）；
+* 浏览器系统级别通知；
+* 权限&页面刷新问题（响应式优化）；
+* 代码重构；
+* 用户体验优化；
+* websocket优化（或用原生）；
+* ...
 
-``` 
-变量拷贝（待尝试）
-全局请求loading、全局的会话判断
-样式（长期）& （vuejs & element）
-vue事件先后顺序（onfocus & onchange）
-防止客户端重复点击（客户端解决方案）
-浏览器系统级别通知
-权限&页面刷新问题
-代码重构
-```
-
+### 参考
+* https://socket.io/docs/
+* https://element.eleme.cn/#/zh-CN/component/

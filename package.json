@@ -5,6 +5,7 @@
   "config": {},
   "scripts": {
     "serve": "cross-env NODE_ENV=development vue-cli-service serve --mode development",
+    "buildx": "cross-env NODE_ENV=buildx vue-cli-service build --mode development",
     "build": "cross-env NODE_ENV=production vue-cli-service build --mode production",
     "test": "cross-env NODE_ENV=test vue-cli-service test:unit --mode test",
     "lint": "vue-cli-service lint"
@@ -21,7 +22,8 @@
     "vue-socket.io": "^3.0.7",
     "vue-socket.io-extended": "^4.0.1",
     "vuex": "^3.1.2",
-    "webpack-parallel-uglify-plugin": "^1.1.2"
+    "webpack-parallel-uglify-plugin": "^1.1.2",
+    "xterm": "^4.7.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.12.1",

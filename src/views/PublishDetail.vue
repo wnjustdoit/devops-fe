@@ -1,10 +1,18 @@
 <template>
   <div>
+    <div style="margin-top: 10px;">
+      <el-breadcrumb separator-class="el-icon-arrow-right">
+        <el-breadcrumb-item>后端发布</el-breadcrumb-item>
+        <el-breadcrumb-item :to="{ path: '/publishList' }">发布列表</el-breadcrumb-item>
+        <el-breadcrumb-item>发布详情</el-breadcrumb-item>
+        <el-breadcrumb-item>{{ this.$route.query.name }}</el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
     <div style="margin-top: 5px; text-align: right; font-size: 12px; margin-right: 15px;">
-      <span v-if="$socket.connected" style="color: blue;">Socket connected</span>
-      <span v-if="$socket.disconnected" style="color: red;">Socket disconnected</span>
+      <span v-if="socket.connected" style="color: blue;">Socket connected</span>
+      <span v-if="socket.disconnected" style="color: red;">Socket disconnected</span>
       <el-divider direction="vertical"></el-divider>自动滚动日志：
-      <el-switch v-if="$socket.connected" v-model="scroll_switch" @change="scroll_publish"></el-switch>
+      <el-switch v-if="socket.connected" v-model="scroll_switch" @change="scroll_publish"></el-switch>
     </div>
     <el-divider content-position="left">
       <span style="font-size: 12px;">发布进度</span>
@@ -21,7 +29,7 @@
     <el-divider content-position="left">
       <span style="font-size: 12px;">发布日志</span>
     </el-divider>
-    <div class="publish_detail">
+    <div class="publish_detail" id="terminal">
       <el-scrollbar style="height: 100%;" ref="el_scrollbar">
         <div
           class="publish"
@@ -51,6 +59,7 @@
 <script>
 import http from "../util/http.js";
 import { stringify } from "querystring";
+import io from "socket.io-client";
 export default {
   data() {
     return {
@@ -72,13 +81,12 @@ export default {
         $step5: 5,
         $step6: 6,
         $step7: 7
+      },
+      socket: {
+        connected: false,
+        disconnected: true
       }
     };
-  },
-  sockets: {
-    connect() {
-      console.log("socket connected");
-    }
   },
   methods: {
     getStepIndex(lineContent) {
@@ -110,31 +118,43 @@ export default {
         });
         return;
       }
-      // 当首次cookie为空时，写完cookie后重连websocket（其他改进策略：换原生websocket，更好的掌控整个websocket生命周期）
-      // 终极改进：TODO 用户登录后，直接用会话的cookie标识
-      var reconnect = true;//this.getCookie("publish_client_id") == "";
+
       await http
         .post("/publish", { id: this.$route.query.id })
         .then(response => {
+          if (response.data.status == "FAILED") {
+            this.$message({
+              message: "请先登录",
+              type: "warning"
+            });
+            let _this = this;
+            setTimeout(function() {
+              _this.$router.push({
+                path: "/userLogin"
+              });
+            }, 1000);
+            return;
+          }
           this.$message({
             showClose: true,
-            message: "正在发布...",
+            message: "开始发布...",
             type: "success"
           });
-          if (reconnect) {
-            // this.$socket.client.disconnect();
-            this.$socket.client.connect();
-          }
         })
         .catch(error => {
           console.error(error);
         })
         .then(() => {});
 
-      this.$socket.client.emit("publish_event", { id: this.$route.query.id });
-      this.$socket.$subscribe(
-        "publish_response_" +
-          this.getCookie("publish_client_id") +
+      const socket = io(process.env.VUE_APP_DOMAIN_BASE_URL);
+      this.socket = socket;
+      
+      socket.on("connect", () => {
+        socket.emit("publish_event", { id: this.$route.query.id });
+      });
+
+      socket.on("publish_response_" +
+          this.getCookie("session_id") +
           "_" +
           this.$route.query.id,
         data => {
@@ -159,7 +179,19 @@ export default {
               message: h(
                 "i",
                 { style: "color: green" },
-                data.project + "发布结束，详情请查看发布日志"
+                this.$route.query.name + "发布成功，详情请查看发布日志"
+              ),
+              duration: 0
+            });
+          }
+          if (data.status && data.status == "FAILED") {
+            const h = this.$createElement;
+            this.$notify({
+              title: "发布状态",
+              message: h(
+                "i",
+                { style: "color: grey" },
+                this.$route.query.name + "发布失败，详情请查看发布日志"
               ),
               duration: 0
             });
@@ -176,7 +208,6 @@ export default {
       if (!div) {
         return;
       }
-      // console.log("=====" + this.scroll_switch + ", " + manual_switch + ", " + div.scrollTop + ", " + div.scrollHeight);
       // 如果人为打开开关，则自动滚动
       if (
         (manual_switch != null && manual_switch) ||
@@ -192,7 +223,6 @@ export default {
       }
     },
     resize_div() {
-      // console.log('================' + document.documentElement.clientHeight + ', ' + document.documentElement.clientWidth);
       var height_used = this.$refs.log_output.getBoundingClientRect().top;
       this.publish_style.height = `${document.documentElement.clientHeight -
         height_used -
@@ -224,7 +254,7 @@ export default {
   text-align: left;
   border: 1px solid lightgray;
 }
->>> .el-step__title {
+.el-step__title {
   font-size: 12px;
   line-height: 18px;
 }

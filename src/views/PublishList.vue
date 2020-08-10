@@ -1,10 +1,23 @@
 <template>
   <div class="publishList" v-loading="loading">
     <div style="margin-bottom: 10px; width: 100%;">
-      <el-input placeholder="请输入关键词" v-model="keyword" clearable size="small" style="width: 300px;">
-        <i slot="prefix" class="el-input__icon el-icon-search"></i>
-      </el-input>
-      <el-button type="primary" size="small" @click="search_projects_publishment()">搜索</el-button>
+      <el-select
+          v-model="keyword"
+          filterable
+          placeholder="请选择或输入关键词"
+          clearable
+          allow-create
+          default-first-option
+          @change="search_projects_publishment()"
+        >
+          <el-option
+            v-for="item in keyword_options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          ></el-option>
+        </el-select>&nbsp;&nbsp;
+      <el-button type="primary" @click="search_projects_publishment()">搜索</el-button>
       <el-button
         type="text"
         size="mini"
@@ -127,13 +140,19 @@
       </el-table-column>
       <el-table-column width="80" label="健康状态" v-if="showHealthStatus == true">
         <template slot-scope="scope">
-          <span v-if="scope.row.health_status && scope.row.health_status != ''" class="el-icon-sunny"></span>
-          <span v-else-if="scope.row.health_status !== undefined && scope.row.health_status == ''" class="el-icon-moon-night"></span>
+          <span
+            v-if="scope.row.health_status && scope.row.health_status != ''"
+            class="el-icon-sunny"
+          ></span>
+          <span
+            v-else-if="scope.row.health_status !== undefined && scope.row.health_status == ''"
+            class="el-icon-moon-night"
+          ></span>
         </template>
       </el-table-column>
       <el-table-column label="发布操作">
         <template slot-scope="scope">
-          <el-dropdown split-button type="primary" size="small" @click="toPublish(scope.row.id)">
+          <el-dropdown split-button type="primary" size="small" @click="toPublish(scope.row.id, scope.row.name)">
             <span class="el-icon-s-promotion">&nbsp;发布</span>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item style="padding: 0 1px 2px 1px; text-align: center">
@@ -187,7 +206,37 @@ export default {
       pageSize: 10,
       keyword: null,
       loading: false,
-      showHealthStatus: false
+      showHealthStatus: false,
+      keyword_options: [
+        {
+          value: "youxuan",
+          label: "妈妈纷享"
+        },
+        {
+          value: "pallymore",
+          label: "帕力亚多学习圈"
+        },
+        {
+          value: "进货商城",
+          label: "进货商城"
+        },
+        {
+          value: "pos",
+          label: "店保"
+        },
+        {
+          value: "官网",
+          label: "官网类"
+        },
+        {
+          value: "membergrowth",
+          label: "会员增长小程序"
+        },
+        {
+          value: "hroffer",
+          label: "HR公众号"
+        }
+      ],
     };
   },
   methods: {
@@ -255,11 +304,12 @@ export default {
           this.$message("已取消");
         });
     },
-    toPublish(id) {
+    toPublish(id, name) {
       this.$router.push({
         path: "/publishDetail",
         query: {
-          id: id
+          id: id,
+          name: name
         }
       });
     },
@@ -394,10 +444,19 @@ export default {
         .catch(error => {
           this.$message.error("查询失败");
         });
+    },
+    keyupSubmit() {
+      document.onkeydown = e => {
+        let _key = window.event.keyCode;
+        if (_key === 13) {
+          this.search_projects_publishment();
+        }
+      };
     }
   },
   created() {
     this.search_projects_publishment();
+    this.keyupSubmit();
   }
 };
 </script>
