@@ -48,8 +48,18 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 * 权限&页面刷新问题（响应式优化）；
 * 代码重构；
 * 用户体验优化；
-* websocket优化（或用原生）；
 * ...
+
+### 系统级别的 chrome 通知
+* 参考 HTML5 Notification
+* 除了本地 ip（如：127.0.0.1/localhost）外，需要 https 安全认证
+* 必要的话，管理 chrome 浏览器的相关设置（较低或较高版本不支持）：
+```
+chrome://flags/#enable-native-notifications
+chrome://settings/content/notifications
+```
+### websocket 的处理
+如果通过域名访问服务的话，那么需要处理跨域问题，建议用 nginx 代理转发 websocket 请求
 
 ### 参考
 * https://socket.io/docs/

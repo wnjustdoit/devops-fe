@@ -82,10 +82,10 @@ export default {
     },
     init_menu() {
       // 临时重定向到后端发布列表
-      this.$router.push({
-                path: "/publishList"
-              });
-      return;
+      // this.$router.push({
+      //           path: "/publishList"
+      //         });
+      // return;
       http
         .get("/user/info")
         .then(response => {
@@ -114,6 +114,41 @@ export default {
         .then(() => {
           // always executed
         });
+    },
+    supportNotify(){
+        if (window.Notification) {
+            // 支持
+            console.log("支持"+"Web Notifications API");
+            //如果支持Web Notifications API，再判断浏览器是否支持弹出实例
+            this.showMess();
+        } else {
+            // 不支持
+            alert("不支持 Web Notifications API");
+        }
+    },
+    showMess(){
+        setTimeout(function () {
+            console.log('1：'+Notification.permission);
+            //如果支持window.Notification 并且 许可不是拒绝状态
+            if(window.Notification && Notification.permission !== "denied") {
+                //Notification.requestPermission这是一个静态方法，作用就是让浏览器出现是否允许通知的提示
+                Notification.requestPermission(function(status) {
+                    console.log('2: '+status);
+                    //如果状态是同意
+                    if (status === "granted") {
+                        var m = new Notification('收到信息', {
+                            body: '这里是通知内容！你想看什么客官？',　　//消息体内容
+                            icon:"images/img1.jpg"　　//消息图片
+                        });
+                        m.onclick = function () {//点击当前消息提示框后，跳转到当前页面
+                            window.focus();
+                        }
+                    } else{
+                        alert('当前浏览器不支持弹出消息')
+                    }
+                });
+            }
+        },1000)
     }
   },
   watch: {
@@ -124,6 +159,7 @@ export default {
   created() {
     this.init_menu();
     this.init_active();
+    this.supportNotify();
   }
 };
 </script>
